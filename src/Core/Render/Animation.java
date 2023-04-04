@@ -25,11 +25,6 @@ public class Animation extends Thread{
         }
     }
 
-    public void start() {
-        killed = false;
-        super.start();
-    }
-
     public void pause() {
         killed = true;
     }

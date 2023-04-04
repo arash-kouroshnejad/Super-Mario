@@ -44,8 +44,6 @@ public class ViewPort {
     }
 
     public void update() {
-        // setting view port position on map
-        // TODO : configure view port position automatically
         if (lockedElement != null) {
             x = lockedElement.getX() - width / 2;
         }

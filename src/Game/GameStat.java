@@ -75,4 +75,8 @@ public class GameStat {
     }
 
     public void terminate(){finished = true;}
+
+    public boolean inProgress() {
+        return (timeElapsed != 0);
+    }
 }

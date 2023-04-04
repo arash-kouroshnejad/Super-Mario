@@ -80,12 +80,11 @@ public class MarioLogic extends Logic {
 
     private void killMario() {
         if (currentGame.getLives() > 0) {
-            currentGame.setLives(currentGame.getLives() - 1);
+            currentGame.setLevel(0);
             currentGame.setScore(0);
             reset();
         }
         else {
-            // TODO : finished lives > finish game
             GameEngine.getInstance().closeGame();
             calculateScore();
             currentGame.terminate();
@@ -99,7 +98,7 @@ public class MarioLogic extends Logic {
         points += 20 * currentGame.getLives();
         points += 15 * currentGame.getKillCount();
         updateTime();
-        points += (80 - currentGame.getTimeElapsed());
+        points += (80000 - currentGame.getTimeElapsed()) / 1000;
         currentGame.setScore(currentGame.getScore() + points);
     }
 
@@ -112,7 +111,6 @@ public class MarioLogic extends Logic {
     public void check() {
         updateTime();
         if (timeElapsed > 80000) {
-            // TODO : kill or end game
             killMario();
             return;
         }
@@ -127,7 +125,6 @@ public class MarioLogic extends Logic {
             if (!element.getType().equals("Plant")) {
                 // gravity
                 if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) {
-                    // TODO : reset code based on the fact that its mario or sth else
                     element.setHidden(true);
                     ElementManager manager = element.getManager();
                     if (manager != null) {
@@ -145,8 +142,7 @@ public class MarioLogic extends Logic {
                     StaticElement element1 = statics.get(j);
                     if (element.collidesWith(element1)) {
                         switch (element1.getType()) {
-                            case "Flagpole" -> {
-                                // TODO : proceed to the next section
+                            case "FlagPole" -> {
                                 calculateScore();
                                 manager.saveProgress();
                                 currentGame.setLevel(currentGame.getLevel() + 1);
@@ -155,7 +151,6 @@ public class MarioLogic extends Logic {
                             }
 
                             case "Castle" -> {
-                                // TODO : end game and save
                                 calculateScore();
                                 manager.saveProgress();
                                 GameEngine.getInstance().closeGame();
@@ -214,18 +209,20 @@ public class MarioLogic extends Logic {
                             if (!element1.isHidden()) {
                                 switch(element1.getType()) {
                                     case "Coin" :
-                                        // TODO : earn coin
                                         currentGame.earnCoin();
                                         element1.setHidden(true);
                                     case "Star":
                                         // TODO : earn POWER UP
                                         element1.setHidden(true);
                                         break;
-                                    case "Goomba":
                                     case "Plant":
                                         if (!element1.isHidden()) {
+                                            killMario();
+                                            return;
+                                        }
+                                    case "Goomba":
+                                        if (!element1.isHidden()) {
                                             if (element.collidesHorizontally(element1)) {
-                                                // TODO : kill Mario
                                                 // TODO : TEST PROPER DEATH FUNCTIONALITY WITH CRAPPY COLLISION DETECTION
                                                 killMario();
                                                 return;
@@ -256,7 +253,6 @@ public class MarioLogic extends Logic {
 
     @Override
     public void paint(Graphics g) {
-        // TODO : do custom scoreboard paintings
         g.setColor(Color.WHITE);
         g.setFont(new Font("default", Font.BOLD, 16));
         g.drawString("TIME : " + timeElapsed,  mid - 300, 100);

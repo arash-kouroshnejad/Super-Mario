@@ -19,7 +19,7 @@ public class NewGameController extends FrameController {
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
                 JButton selectButton = new JButton("Game " + (i + 1));
                 panel.add(selectButton);
-                selectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                selectButton.setAlignmentX(Component.CENTER_ALIGNMENT); // TODO : fix alignment add JLabels and add remove functionality
                 selectButton.addMouseListener(frame);
                 selectButton.setName("select " + i);
                 JButton removeButton = new JButton("remove");
@@ -42,6 +42,8 @@ public class NewGameController extends FrameController {
             case "remove":
                 // TODO : remove game
                 break;
+            case "ExitButton":
+                GameManager.getInstance().showMenu();
         }
     }
 }

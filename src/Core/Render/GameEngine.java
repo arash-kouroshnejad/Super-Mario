@@ -39,7 +39,7 @@ public class GameEngine {
         return gameLogic;
     }
 
-    private final Animation animationAgent = new Animation(100);
+    private Animation animationAgent;
 
     private boolean customPainting;
 
@@ -52,6 +52,7 @@ public class GameEngine {
         gameFrame = new GameFrame();
         viewPort.setFrame(gameFrame);
         gameLogic.setLockedElement(viewPort.getLockedElement());
+        animationAgent = new Animation(100);
         animationAgent.start();
     }
 
@@ -110,7 +111,6 @@ public class GameEngine {
         viewPort.setWidth(dim.width);
         viewPort.setHeight(dim.height);
     }
-
     public void enableCustomPainting() {
         customPainting = true;
     }
