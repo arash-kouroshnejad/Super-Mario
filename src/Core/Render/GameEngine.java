@@ -51,7 +51,6 @@ public class GameEngine {
         this.gameLogic = gameLogic;
         gameFrame = new GameFrame();
         viewPort.setFrame(gameFrame);
-        gameLogic.setLockedElement(viewPort.getLockedElement());
         animationAgent = new Animation(100);
         animationAgent.start();
     }

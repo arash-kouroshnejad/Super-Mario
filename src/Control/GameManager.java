@@ -4,11 +4,14 @@ import Core.Render.GameEngine;
 import Game.GameLoader;
 import Game.MarioLogic;
 import Game.GameStat;
+import UI.GameSetup.SetupController;
 import UI.Login.LoginController;
 import UI.MainMenu.MainMenuController;
 import UI.NewGame.NewGameController;
+import UI.Profile.ProfileController;
 import UI.Register.RegisterController;
 import UI.ResumeGame.ResumePageController;
+import UI.Store.StoreController;
 import UI.Welcome.WelcomeController;
 
 public class GameManager {
@@ -51,11 +54,19 @@ public class GameManager {
         gameLogic = new MarioLogic();
         assetLoader = new GameLoader();
         currentGame = assetLoader.createGame(ID);
-        setUpFrame(gameLogic, assetLoader, ID);
+        showSetup();
     }
     public void resetGame() {
         assetLoader.loadMap(currentGame.getID(), currentGame.getLevel());
         gameLogic.init(assetLoader);
+    }
+    public void showSetup() {
+        SetupController setupController = new SetupController(accountManager.getCurrentUser());
+        setupController.show();
+    }
+    public void getSetup(String character) {
+        currentGame.setCharacter(character);
+        setUpFrame(gameLogic, assetLoader, currentGame.getID());
     }
     public void saveProgress() {
         assetLoader.saveMap(GameEngine.getInstance().getMap(), currentGame.getID());
@@ -63,6 +74,7 @@ public class GameManager {
         User usr = accountManager.getCurrentUser();
         usr.setGame(currentGame.getID(), currentGame); // TODO : remove game if its finished
         usr.setCoins(usr.getCoins() + currentGame.getCoinsEarned());
+        usr.setHighestScore(Math.max(usr.getHighestScore(), currentGame.getScore()));
     }
     public void resumeGame(int ID) {
         gameLogic = new MarioLogic();
@@ -74,9 +86,24 @@ public class GameManager {
     }
     private void setUpFrame(MarioLogic logic, GameLoader loader, int ID) {
         assetLoader.loadGame(ID);
+        gameLogic.init(loader);
         engine.init(logic);
         engine.startGame();
-        gameLogic.init(loader);
+    }
+    public void showStore() {
+        StoreController storeController = new StoreController(accountManager.getCurrentUser());
+        storeController.show();
+    }
+    public void showProfile() {
+        ProfileController profileController = new ProfileController(accountManager.getCurrentUser());
+        profileController.show();
+    }
+    public void removeGame(int ID) {
+        assetLoader = new GameLoader();
+        assetLoader.getGame(ID).terminate();
+    }
+    public void buyCharacter(String character) {
+        accountManager.getCurrentUser().purchase(character);
     }
     public boolean auth(String username, String password) {
         return accountManager.Login(username, password);

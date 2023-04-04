@@ -29,6 +29,7 @@ public class LoginController extends FrameController {
                 }
             }
             case "CancelButton" -> {
+                frame.setVisible(false);
                 GameManager.getInstance().showWelcome();
             }
         }

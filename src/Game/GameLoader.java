@@ -56,18 +56,6 @@ public class GameLoader extends SpriteLoader {
     }
 
     public void loadGame(int ID) {
-        GameStat game = getGame(ID);
-        int level = game.getLevel();
-        loadMap(ID, level);
-    }
-
-    @Override
-    public boolean isDynamic(String type) {
-        return false;
-    }
-
-    @Override
-    public boolean isLocked(String type) {
-        return false;
+        loadMap(ID, getGame(ID).getLevel());
     }
 }

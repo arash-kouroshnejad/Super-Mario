@@ -35,6 +35,17 @@ public class MarioLogic extends Logic {
     public void init(Loader loader) {
         Layer layer = Layers.getInstance().getALL_LAYERS().get(1);
         dynamics = layer.getDynamicElements();
+        DynamicElement character = dynamics.get(0);
+        currentGame = manager.getCurrentGame();
+        character = new DynamicElement(character.getX(), character.getY(), character.getWidth(), character.getHeight(),
+                character.getSpeedX(), character.getSpeedY(), currentGame.getCharacter());
+        dynamics.remove(0);
+        dynamics.add(0, character);
+        character.setLockedCharacter();
+        lockedElement = character;
+        ViewPort.getInstance().setLockedElement(character);
+        GameEngine.getInstance().getMap().setLockedCharacter(character);
+        character.setImages(loader.getSprite(currentGame.getCharacter()));
         layer = Layers.getInstance().getALL_LAYERS().get(2);
         statics = layer.getStaticElements();
         gThread.setElements(dynamics);
@@ -56,7 +67,6 @@ public class MarioLogic extends Logic {
                 }
             }
         }
-        currentGame = manager.getCurrentGame();
         timeElapsed = currentGame.getTimeElapsed();
         GameEngine.getInstance().enableCustomPainting();
         mid = ViewPort.getInstance().getWidth() / 2;
@@ -82,6 +92,7 @@ public class MarioLogic extends Logic {
         if (currentGame.getLives() > 0) {
             currentGame.setLevel(0);
             currentGame.setScore(0);
+            currentGame.setLives(currentGame.getLives() - 1);
             reset();
         }
         else {
@@ -254,6 +265,7 @@ public class MarioLogic extends Logic {
     @Override
     public void paint(Graphics g) {
         g.setColor(Color.WHITE);
+        mid = ViewPort.getInstance().getWidth() / 2;
         g.setFont(new Font("default", Font.BOLD, 16));
         g.drawString("TIME : " + timeElapsed,  mid - 300, 100);
         g.drawString("COINS : " + currentGame.getCoinsEarned(), mid + 100, 100);

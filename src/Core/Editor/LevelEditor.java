@@ -20,16 +20,18 @@ public class LevelEditor extends GameEngine {
 
     private SpritePicker spritesFrame;
 
-    public void init(Loader loader, Logic gameLogic) {
+    private MapCreator creator;
+
+    public void init(Loader loader, Logic gameLogic, MapCreator creator) {
         this.loader = loader;
-        loader.loadMap(-1, 0);
+        this.creator = creator;
         GameEngine.getInstance().init(gameLogic);
         spritesFrame = new SpritePicker();
     }
 
     public void createMap() {
-        Map map = new Map(Layers.getInstance().getALL_LAYERS(), -1);
-        // loader.saveMap(map); // TODO : bring level editor back up again
+        Map map = new Map(Layers.getInstance().getALL_LAYERS(), 2);
+        creator.saveMap(map, 2); // TODO : bring level editor back up again
     }
 
     public Loader getLoader() {

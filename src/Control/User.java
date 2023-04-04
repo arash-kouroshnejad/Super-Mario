@@ -3,19 +3,27 @@ package Control;
 import Game.GameStat;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class User {
     private final String USERNAME;
     private final byte[] PASSHASH;
     private int coins;
 
-    private GameStat[] games = new GameStat[3];
+    private GameStat[] games;
+
+    private int highestScore;
 
     private ArrayList<GameStat> allGames = new ArrayList<>();
+
+    private HashSet<String> characters = new HashSet<>();
 
     public User(String USERNAME, byte[] PASSHASH) {
         this.USERNAME = USERNAME;
         this.PASSHASH = PASSHASH;
+        characters.add("Mario");
+        games = new GameStat[]{new GameStat(0, 3, 0, 0), new GameStat(0, 3, 0, 1),
+            new GameStat(0, 3, 0, 2)};
     }
 
     public int getCoins() {
@@ -56,5 +64,28 @@ public class User {
 
     public void setAllGames(ArrayList<GameStat> allGames) {
         this.allGames = allGames;
+    }
+
+    public void purchase(String character) {
+        if (!characters.contains(character)) {
+            coins -= 20;
+            characters.add(character);
+        }
+    }
+
+    public HashSet<String> getCharacters() {
+        return characters;
+    }
+
+    public void setCharacters(HashSet<String> characters) {
+        this.characters = characters;
+    }
+
+    public int getHighestScore() {
+        return highestScore;
+    }
+
+    public void setHighestScore(int highestScore) {
+        this.highestScore = highestScore;
     }
 }

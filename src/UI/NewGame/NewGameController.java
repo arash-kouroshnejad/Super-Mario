@@ -14,20 +14,18 @@ public class NewGameController extends FrameController {
         JPanel mainPanel = (JPanel) frame.getContentPane();
         GameStat[] usrGames =  user.getGames();
         for (int i=0;i<3;i++) {
-            if (usrGames[i] != null) {
-                JPanel panel = (JPanel) ((JPanel)mainPanel.getComponent(0)).getComponent(i);
-                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-                JButton selectButton = new JButton("Game " + (i + 1));
-                panel.add(selectButton);
-                selectButton.setAlignmentX(Component.CENTER_ALIGNMENT); // TODO : fix alignment add JLabels and add remove functionality
-                selectButton.addMouseListener(frame);
-                selectButton.setName("select " + i);
-                JButton removeButton = new JButton("remove");
-                removeButton.setName("remove " + i);
-                panel.add(removeButton);
-                removeButton.addMouseListener(frame);
-                removeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-            }
+            JPanel panel = (JPanel) ((JPanel)mainPanel.getComponent(0)).getComponent(i);
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            JButton selectButton = new JButton("Game " + (i + 1));
+            panel.add(selectButton);
+            selectButton.setAlignmentX(Component.CENTER_ALIGNMENT); // TODO : fix alignment add JLabels and add remove functionality
+            selectButton.addMouseListener(frame);
+            selectButton.setName("select " + i);
+            JButton removeButton = new JButton("remove");
+            removeButton.setName("remove " + i);
+            panel.add(removeButton);
+            removeButton.addMouseListener(frame);
+            removeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         }
     }
 
@@ -35,15 +33,13 @@ public class NewGameController extends FrameController {
     public void select(String selection) {
         frame.setVisible(false);
         switch (selection.split(" ")[0]) {
-            case "select":
+            case "select" ->
                 // TODO : start game
-                GameManager.getInstance().newGame(Integer.parseInt(selection.split(" ")[1]));
-                break;
-            case "remove":
+                    GameManager.getInstance().newGame(Integer.parseInt(selection.split(" ")[1]));
+            case "remove" ->
                 // TODO : remove game
-                break;
-            case "ExitButton":
-                GameManager.getInstance().showMenu();
+                    GameManager.getInstance().removeGame(Integer.parseInt(selection.split(" ")[1]));
+            case "ExitButton" -> GameManager.getInstance().showMenu();
         }
     }
 }

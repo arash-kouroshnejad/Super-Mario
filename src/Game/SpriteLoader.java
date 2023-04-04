@@ -7,8 +7,8 @@ import java.awt.*;
 public abstract class SpriteLoader extends Loader {
 
     public SpriteLoader(String PathToMaps) {
-        super("./src/Resources/", PathToMaps);
-        TYPES = new String[]{"Mario", "Steve", "PacMan", "Ghost", "Star", "Goomba", "Mushroom", "Plant", "Coin", "BlueBackground", "Grass", "Logo",
+        super("./src/Resources/Sprites/", PathToMaps);
+        TYPES = new String[]{"Mario", "Steve", "PacMan", "Ghost", "Monster", "Star", "Goomba", "Mushroom", "Plant", "Coin", "BlueBackground", "Grass", "Logo",
                 "PowerUpBlock", "SingleCloud", "TwoClouds", "Pipe", "Floor", "Stair", "Brick", "PipeExtension", "FlagPole"};
         references.put("Mario", new String[]{"MarioStill", "MarioSprint1", "MarioSprint2", "MarioSprint3", "MarioMirrored", "MarioJump"});
         references.put("Mushroom", new String[]{"Mushroom"});
@@ -31,14 +31,15 @@ public abstract class SpriteLoader extends Loader {
         references.put("Steve", new String[]{"Steve"});
         references.put("PacMan", new String[]{"PacMan"});
         references.put("Ghost", new String[]{"Ghost"});
+        references.put("Monster", new String[]{"Monster"});
         Dimension[] dimensions1 = new Dimension[]{new Dimension(30, 40), new Dimension(20, 40),
                 new Dimension(40, 40), new Dimension(30, 40), new Dimension(30, 30),
                     new Dimension(30, 30), new Dimension(30, 30), new Dimension(30, 30),
-                        new Dimension(30, 30), new Dimension(1600, 1600), new Dimension(30 ,30),
-                            new Dimension(950, 350), new Dimension(30, 30), new Dimension(70, 40),
-                                new Dimension(120 ,80), new Dimension(100, 100), new Dimension(634, 228),
-                                    new Dimension(30, 30), new Dimension(30 ,30), new Dimension(40, 50),
-                                        new Dimension(50, 200)};
+                        new Dimension(30, 30), new Dimension(30, 30), new Dimension(1600, 1600),
+                            new Dimension(30 ,30), new Dimension(950, 350), new Dimension(30, 30),
+                                new Dimension(70, 40), new Dimension(120 ,80), new Dimension(100, 100),
+                                    new Dimension(634, 228), new Dimension(30, 30), new Dimension(30 ,30),
+                                        new Dimension(40, 50), new Dimension(50, 200)};
         for (int i=0;i<TYPES.length;i++) {
             dimensions.put(TYPES[i], dimensions1[i]);
         }

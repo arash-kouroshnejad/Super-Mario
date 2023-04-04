@@ -9,7 +9,7 @@ public class GameStat {
     private int coinsEarned;
     private final int ID;
     private int killCount;
-
+    private String character;
     private boolean finished;
 
     public GameStat(int score, int lives, long timeElapsed, int ID) {
@@ -78,5 +78,13 @@ public class GameStat {
 
     public boolean inProgress() {
         return (timeElapsed != 0);
+    }
+
+    public String getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(String character) {
+        this.character = character;
     }
 }

@@ -37,15 +37,10 @@ public class MainMenuController extends FrameController {
     public void select(String selection) {
         frame.setVisible(false);
         switch (selection) {
-            case "Resume":
-                GameManager.getInstance().showResumeGame();
-                break;
-            case "NewGame":
-                GameManager.getInstance().showNewGame();
-                break;
-            case "Results":
-            case "Profile":
-            case "Store":
+            case "Resume" -> GameManager.getInstance().showResumeGame();
+            case "NewGame" -> GameManager.getInstance().showNewGame();
+            case "Results", "Profile" -> GameManager.getInstance().showProfile();
+            case "Store" -> GameManager.getInstance().showStore();
         }
     }
 }

@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class Persistence{
     private final static Persistence instance = new Persistence();
@@ -41,10 +42,6 @@ public class Persistence{
             for (User user : allUsers) {
                 if (user.getAllGames() == null) {
                     user.setAllGames(new ArrayList<>());
-                }
-                if (user.getGames() == null) {
-                    user.setGames(new GameStat[]{new GameStat(0, 3, 0, 0), new GameStat(0, 3, 0, 2)
-                        , new GameStat(0, 3, 0, 2)});
                 }
             }
             accountManager.getUsers().addAll(Arrays.stream(allUsers).toList());

@@ -27,6 +27,7 @@ public class RegisterController extends FrameController {
                 }
             }
             case "CancelButton" -> {
+                hide();
                 GameManager.getInstance().showWelcome();
             }
         }
