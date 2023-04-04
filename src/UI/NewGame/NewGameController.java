@@ -13,10 +13,6 @@ public class NewGameController extends FrameController {
         super(new NewGamePage());
         JPanel mainPanel = (JPanel) frame.getContentPane();
         GameStat[] usrGames =  user.getGames();
-        if (usrGames == null) {
-            usrGames = new GameStat[]{new GameStat(0, 3, 0, 0), new GameStat(3, 0, 0, 0), new GameStat(0, 3, 0, 0)};
-            user.setGames(usrGames);
-        }
         for (int i=0;i<3;i++) {
             if (usrGames[i] != null) {
                 JPanel panel = (JPanel) ((JPanel)mainPanel.getComponent(0)).getComponent(i);

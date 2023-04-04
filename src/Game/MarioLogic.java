@@ -9,6 +9,7 @@ import Game.Plugins.CoinThread;
 import Game.Plugins.Gravity;
 import Game.Plugins.PlantThread;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class MarioLogic extends Logic {
@@ -20,6 +21,10 @@ public class MarioLogic extends Logic {
     private boolean[] inTouch;
     private boolean jumping;
     private int minY;
+
+    int mid;
+
+    private long timeElapsed; // in milliseconds
 
     private GameStat currentGame;
 
@@ -51,12 +56,14 @@ public class MarioLogic extends Logic {
                 }
             }
         }
+        currentGame = manager.getCurrentGame();
+        timeElapsed = currentGame.getTimeElapsed();
+        GameEngine.getInstance().enableCustomPainting();
+        mid = ViewPort.getInstance().getWidth() / 2;
     }
 
     @Override
-    public void stop() {
-
-    }
+    public void stop() {}
 
     @Override
     public void reset() {
@@ -68,22 +75,22 @@ public class MarioLogic extends Logic {
         gThread = new Gravity();
         GameManager.getInstance().resetGame();
         setLockedElement(ViewPort.getInstance().getLockedElement());
+        timeElapsed = 0;
     }
 
     private void killMario() {
         if (currentGame.getLives() > 0) {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             currentGame.setLives(currentGame.getLives() - 1);
             currentGame.setScore(0);
             reset();
         }
         else {
             // TODO : finished lives > finish game
-
+            GameEngine.getInstance().closeGame();
+            calculateScore();
+            currentGame.terminate();
+            manager.saveProgress();
+            manager.showMenu();
         }
     }
 
@@ -97,12 +104,18 @@ public class MarioLogic extends Logic {
     }
 
     private void updateTime() {
-        currentGame.setTimeElapsed(currentGame.getTimeElapsed() + (System.currentTimeMillis() - currentGame.getLastStart()) / 1000
-        + (3 - currentGame.getLives()) * 5);
+        timeElapsed += 10; // 100 fps --> 10 milliseconds per frame
+        currentGame.setTimeElapsed(timeElapsed); // minus the respawn delay
     }
 
     @Override
     public void check() {
+        updateTime();
+        if (timeElapsed > 80000) {
+            // TODO : kill or end game
+            killMario();
+            return;
+        }
         // jump limit
         if (!(inTouch[0] && jumping) && Math.abs(lockedElement.getY() - minY) <= 5) {
             lockedElement.setSpeedY(Math.max(0, lockedElement.getSpeedY()));
@@ -122,6 +135,7 @@ public class MarioLogic extends Logic {
                     }
                     if (element.isLockedCharacter()) {
                         killMario();
+                        return;
                     }
                 }
                 // collision with statics
@@ -137,12 +151,15 @@ public class MarioLogic extends Logic {
                                 manager.saveProgress();
                                 currentGame.setLevel(currentGame.getLevel() + 1);
                                 reset();
+                                return;
                             }
 
                             case "Castle" -> {
                                 // TODO : end game and save
                                 calculateScore();
                                 manager.saveProgress();
+                                GameEngine.getInstance().closeGame();
+                                manager.showMenu();
                             }
 
                             case "Floor", "Pipe", "Stair", "Brick", "PowerUpBlock", "PipeExtension" -> {
@@ -191,35 +208,39 @@ public class MarioLogic extends Logic {
                 for (int j = i + 1 ; j < size; j++) {
                     DynamicElement element1 = dynamics.get(j);
                     if (element.collidesWith(element1)) {
-                        if (i == 0) {
+                        // mario
+                        if (element.isLockedCharacter()) {
                             element1.getManager().pause();
-                            switch(element1.getType()) {
-                                case "Coin" :
-                                    // TODO : earn coin
-                                    currentGame.earnCoin();
-                                    element1.setHidden(true);
-                                case "Star":
-                                    // TODO : earn POWER UP
-                                    element1.setHidden(true);
-                                    break;
-                                case "Goomba":
-                                case "Plant":
-                                    if (!element1.isHidden()) {
-                                        if (element.collidesHorizontally(element1)) {
-                                            // TODO : kill Mario
-                                            // TODO : TEST PROPER DEATH FUNCTIONALITY WITH CRAPPY COLLISION DETECTION
-                                            killMario();
+                            if (!element1.isHidden()) {
+                                switch(element1.getType()) {
+                                    case "Coin" :
+                                        // TODO : earn coin
+                                        currentGame.earnCoin();
+                                        element1.setHidden(true);
+                                    case "Star":
+                                        // TODO : earn POWER UP
+                                        element1.setHidden(true);
+                                        break;
+                                    case "Goomba":
+                                    case "Plant":
+                                        if (!element1.isHidden()) {
+                                            if (element.collidesHorizontally(element1)) {
+                                                // TODO : kill Mario
+                                                // TODO : TEST PROPER DEATH FUNCTIONALITY WITH CRAPPY COLLISION DETECTION
+                                                killMario();
+                                                return;
+                                            }
+                                            else {
+                                                element1.setHidden(true);
+                                                currentGame.killEnemy();
+                                            }
                                         }
-                                        else {
-                                            element1.setHidden(true);
-                                            currentGame.killEnemy();
-                                        }
-                                    }
-                                    break;
-                                case "Mushroom":
-                                    // TODO : earn POWER UP
-                                    element1.setHidden(true);
-                                    break;
+                                        break;
+                                    case "Mushroom":
+                                        // TODO : earn POWER UP
+                                        element1.setHidden(true);
+                                        break;
+                                }
                             }
                         }
                         else {
@@ -234,6 +255,16 @@ public class MarioLogic extends Logic {
     }
 
     @Override
+    public void paint(Graphics g) {
+        // TODO : do custom scoreboard paintings
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("default", Font.BOLD, 16));
+        g.drawString("TIME : " + timeElapsed,  mid - 300, 100);
+        g.drawString("COINS : " + currentGame.getCoinsEarned(), mid + 100, 100);
+        g.drawString("LIVES : " + currentGame.getLives(), mid + 300, 100);
+    }
+
+    @Override
     public void handleKeyPress(int keyCode) {
         switch (keyCode) {
             case 38 -> {
@@ -244,11 +275,10 @@ public class MarioLogic extends Logic {
                 }
             }
             case 40 -> lockedElement.setSpeedY(3 * DOWN);
-            case 39 -> lockedElement.setSpeedX(3 * RIGHT);
-            case 37 -> lockedElement.setSpeedX(3 * LEFT);
+            case 39 -> lockedElement.setSpeedX(RIGHT); // 3 * RIGHT
+            case 37 -> lockedElement.setSpeedX(LEFT); // 3 * LEFT
             case 27 ->  {
-                manager.saveProgress();// TODO : save and end game;
-                updateTime();
+                manager.saveProgress();
                 GameEngine.getInstance().closeGame();
                 manager.showMenu();
             }

@@ -3,9 +3,11 @@ package Core.Util;
 import Core.Objects.DynamicElement;
 import Core.Objects.Layers;
 
+import java.awt.*;
+
 public abstract class Logic {
-    protected final static int RIGHT = 1;
-    protected final static int LEFT = -1;
+    protected final static int RIGHT = 2;
+    protected final static int LEFT = -2;
     protected final static int DOWN = 2;
     protected final static int UP = -2;
 
@@ -25,4 +27,6 @@ public abstract class Logic {
     public abstract void stop();
 
     public abstract  void reset();
+
+    public abstract void paint(Graphics g);
 }

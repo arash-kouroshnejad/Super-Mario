@@ -17,7 +17,8 @@ import java.util.HashMap;
 
 public abstract class Loader {
 
-    protected final String Path;
+    protected final String PathToSprites;
+    protected final String PathToMaps;
 
     protected final HashMap<String, ArrayList<Image>> IMAGES = new HashMap<>();
 
@@ -27,8 +28,9 @@ public abstract class Loader {
 
     protected String[] TYPES;
 
-    public Loader(String path) {
-        Path = path;
+    public Loader(String pathToSprites, String pathToMaps) {
+        PathToSprites = pathToSprites;
+        PathToMaps = pathToMaps;
     }
 
     public ArrayList<Image> getSprite(String type) {
@@ -43,7 +45,7 @@ public abstract class Loader {
             ArrayList<Image> arr = new ArrayList<>();
             for (String str : references.get(type)) {
                 try {
-                    arr.add(ImageIO.read(new File(Path + "Sprites/" + str + ".png")));
+                    arr.add(ImageIO.read(new File(PathToSprites + "Sprites/" + str + ".png")));
                 } catch (Exception e) {
                     System.out.println("Error Reading " + type + ":" + str);
                 }
@@ -55,7 +57,7 @@ public abstract class Loader {
     public Map getMap(int ID, int level) {
         Gson gson = new Gson();
         try {
-            FileReader reader = new FileReader(Path + ID + "/" + level + ".map");
+            FileReader reader = new FileReader(PathToMaps + ID + "/" + level + ".map");
             return gson.fromJson(reader, Map.class);
         } catch (Exception e) {
             System.out.println("Error reading Map " + ID + "/" + level);
@@ -63,10 +65,10 @@ public abstract class Loader {
         return null;
     }
 
-    public void saveMap(Map map) {
+    public void saveMap(Map map, int ID) {
         Gson gson = new Gson();
         try {
-            FileWriter writer = new FileWriter(new File(Path + "Maps/" + map.getID() + ".map"));
+            FileWriter writer = new FileWriter(PathToMaps + ID + "/" + map.getID() + ".map");
             gson.toJson(map, writer);
             writer.close();
         }

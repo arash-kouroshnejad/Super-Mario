@@ -29,7 +29,7 @@ public class LevelEditor extends GameEngine {
 
     public void createMap() {
         Map map = new Map(Layers.getInstance().getALL_LAYERS(), -1);
-        loader.saveMap(map);
+        // loader.saveMap(map); // TODO : bring level editor back up again
     }
 
     public Loader getLoader() {

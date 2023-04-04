@@ -11,7 +11,6 @@ public class Driver {
         GameManager.getInstance().showWelcome();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Persistence.getInstance().saveUsers();
-            // loader.saveMap(GameEngine.getInstance().getMap());
         }, "Shutdown-Hook"));
         GameManager manager = GameManager.getInstance();
         // manager.showWelcome();

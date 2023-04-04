@@ -20,10 +20,9 @@ public class GameManager {
     private MainMenuController mainMenuController;
     private NewGameController newGameController;
     private final AccountManager accountManager = AccountManager.getInstance();
-    private final MarioLogic gameLogic = new MarioLogic();
-    private GameLoader statLoader;
+    private MarioLogic gameLogic;
     private final GameEngine engine = GameEngine.getInstance();
-    private final SpriteLoader assetLoader = new SpriteLoader();
+    private GameLoader assetLoader;
     private GameStat currentGame;
     private GameManager() {}
     public void showWelcome() {
@@ -51,9 +50,10 @@ public class GameManager {
     }
 
     public void newGame(int ID) {
-        statLoader = new GameLoader();
-        currentGame = statLoader.createGame(ID);
-        statLoader.loadGame(ID);
+        gameLogic = new MarioLogic();
+        assetLoader = new GameLoader();
+        currentGame = assetLoader.createGame(ID);
+        assetLoader.loadGame(ID);
         engine.init(gameLogic);
         engine.startGame();
         gameLogic.init(assetLoader);
@@ -65,7 +65,8 @@ public class GameManager {
     }
 
     public void saveProgress() {
-        assetLoader.saveMap(GameEngine.getInstance().getMap());
+        assetLoader.saveMap(GameEngine.getInstance().getMap(), currentGame.getID());
+        assetLoader.saveGame(currentGame);
     }
 
     public boolean auth(String username, String password) {
@@ -79,4 +80,7 @@ public class GameManager {
         return instance;
     }
 
+    public GameStat getCurrentGame() {
+        return currentGame;
+    }
 }

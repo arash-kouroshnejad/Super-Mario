@@ -4,10 +4,10 @@ import Core.Util.Loader;
 
 import java.awt.*;
 
-public class SpriteLoader extends Loader {
+public abstract class SpriteLoader extends Loader {
 
-    public SpriteLoader() {
-        super("./src/Resources/");
+    public SpriteLoader(String PathToMaps) {
+        super("./src/Resources/", PathToMaps);
         TYPES = new String[]{"Mario", "Star", "Goomba", "Mushroom", "Plant", "Coin", "BlueBackground", "Grass", "Logo",
                 "PowerUpBlock", "SingleCloud", "TwoClouds", "Pipe", "Floor", "Stair", "Brick", "PipeExtension", "FlagPole"};
         references.put("Mario", new String[]{"MarioStill", "MarioSprint1", "MarioSprint2", "MarioSprint3", "MarioMirrored", "MarioJump"});

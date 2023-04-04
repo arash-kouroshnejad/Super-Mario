@@ -1,7 +1,6 @@
 package Core.Render;
 
 import Core.Objects.*;
-import Core.Util.Loader;
 import Core.Util.Logic;
 
 import java.awt.*;
@@ -40,7 +39,9 @@ public class GameEngine {
         return gameLogic;
     }
 
-    private final Animation animationAgent = new Animation(30);
+    private final Animation animationAgent = new Animation(100);
+
+    private boolean customPainting;
 
     /*public void setGraphics(Graphics graphics) {
         this.graphics = graphics;
@@ -59,8 +60,10 @@ public class GameEngine {
     }
 
     public void closeGame() {
+        started = false;
         gameFrame.setVisible(false);
         animationAgent.pause();
+        customPainting = false;
     }
 
     public void pauseAnimation() {
@@ -98,10 +101,17 @@ public class GameEngine {
                     }
                 }
             }
+            if (started && customPainting) {
+                gameLogic.paint(g);
+            }
         }
     }
     protected void resize(Dimension dim) {
         viewPort.setWidth(dim.width);
         viewPort.setHeight(dim.height);
+    }
+
+    public void enableCustomPainting() {
+        customPainting = true;
     }
 }

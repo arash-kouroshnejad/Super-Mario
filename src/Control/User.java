@@ -53,4 +53,8 @@ public class User {
     public void addGame(GameStat game) {
         allGames.add(game);
     }
+
+    public void setAllGames(ArrayList<GameStat> allGames) {
+        this.allGames = allGames;
+    }
 }

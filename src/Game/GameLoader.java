@@ -1,7 +1,6 @@
 package Game;
 
 import Control.AccountManager;
-import Core.Util.Loader;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -10,19 +9,21 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class GameLoader extends Loader {
+public class GameLoader extends SpriteLoader {
 
     private static GameStat currentGame;
 
     public GameLoader() {
-        super("./src/Resources/" + AccountManager.getInstance().getCurrentUser().getUSERNAME() + "/");
+        super("./src/Resources/Saves/" + AccountManager.getInstance().getCurrentUser().getUSERNAME() + "/");
     }
 
     public GameStat getGame(int ID) {
         Gson gson = new Gson();
         try {
-            return gson.fromJson(new FileReader(Path.substring(0, Path.length() - 5) + "Games/"), GameStat.class);
-        } catch (Exception ignored) {}
+            return gson.fromJson(new FileReader(PathToMaps + ID + "/stats.game"), GameStat.class);
+        } catch (Exception e) {
+            System.out.println("Failed To Get Game : " + ID);
+        }
         return null;
     }
 
@@ -31,9 +32,9 @@ public class GameLoader extends Loader {
         AccountManager.getInstance().getCurrentUser().addGame(game);
         saveGame(game);
         try {
-            Files.copy(java.nio.file.Path.of("./src/Resources/Maps/0.map"), java.nio.file.Path.of(Path + ID + "/0.map"),
+            Files.copy(java.nio.file.Path.of("./src/Resources/Maps/0.map"), java.nio.file.Path.of(PathToMaps + ID + "/0.map"),
                     StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(java.nio.file.Path.of("./src/Resources/Maps/1.map"), java.nio.file.Path.of(Path + ID + "/1.map"),
+            Files.copy(java.nio.file.Path.of("./src/Resources/Maps/1.map"), java.nio.file.Path.of(PathToMaps + ID + "/1.map"),
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception ignored) {}
         return game;
@@ -41,11 +42,17 @@ public class GameLoader extends Loader {
 
     public void saveGame(GameStat game) {
         try {
-            FileWriter writer = new FileWriter(new File(Path + game.getID() + "/stats.game"));
+            File gameFile = new File(PathToMaps + game.getID() + "/stats.game");
+            if (!gameFile.getParentFile().exists()) {
+                gameFile.getParentFile().mkdirs();
+            }
+            FileWriter writer = new FileWriter(gameFile);
             Gson gson = new Gson();
             gson.toJson(game, writer);
             writer.close();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.out.println("Failed To Save Game " + game.getID());
+        }
     }
 
     public void loadGame(int ID) {

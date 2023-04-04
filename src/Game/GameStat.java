@@ -10,7 +10,7 @@ public class GameStat {
     private final int ID;
     private int killCount;
 
-    private long lastStart;
+    private boolean finished;
 
     public GameStat(int score, int lives, long timeElapsed, int ID) {
         this.score = score;
@@ -70,11 +70,9 @@ public class GameStat {
     public void killEnemy(){
         killCount++;}
 
-    public long getLastStart() {
-        return lastStart;
+    public boolean isFinished() {
+        return finished;
     }
 
-    public void setLastStart(long lastStart) {
-        this.lastStart = lastStart;
-    }
+    public void terminate(){finished = true;}
 }

@@ -2,10 +2,12 @@ package Persistence;
 
 import Control.AccountManager;
 import Control.User;
+import Game.GameStat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Persistence{
@@ -36,6 +38,15 @@ public class Persistence{
         try {
             reader = new FileReader("./src/Resources/Users.json");
             User[] allUsers = gson.fromJson(reader, User[].class);
+            for (User user : allUsers) {
+                if (user.getAllGames() == null) {
+                    user.setAllGames(new ArrayList<>());
+                }
+                if (user.getGames() == null) {
+                    user.setGames(new GameStat[]{new GameStat(0, 3, 0, 0), new GameStat(0, 3, 0, 2)
+                        , new GameStat(0, 3, 0, 2)});
+                }
+            }
             accountManager.getUsers().addAll(Arrays.stream(allUsers).toList());
         } catch (FileNotFoundException e) {
             System.out.println("Error reading Users.json");
