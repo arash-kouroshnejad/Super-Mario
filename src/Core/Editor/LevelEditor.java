@@ -20,18 +20,23 @@ public class LevelEditor extends GameEngine {
 
     private SpritePicker spritesFrame;
 
+    private Logic gameLogic;
+
     private MapCreator creator;
 
-    public void init(Loader loader, Logic gameLogic, MapCreator creator) {
+    public void init(MapLoader loader, Logic gameLogic, MapCreator creator) {
         this.loader = loader;
         this.creator = creator;
+        this.gameLogic = gameLogic;
+        loader.loadMap(1);
+        gameLogic.setLockedElement(ViewPort.getInstance().getLockedElement());
         GameEngine.getInstance().init(gameLogic);
         spritesFrame = new SpritePicker();
     }
 
     public void createMap() {
-        Map map = new Map(Layers.getInstance().getALL_LAYERS(), 2);
-        creator.saveMap(map, 2); // TODO : bring level editor back up again
+        Map map = new Map(Layers.getInstance().getALL_LAYERS(), 1);
+        creator.saveMap(map, 1); // TODO : bring level editor back up again
     }
 
     public Loader getLoader() {
@@ -54,6 +59,7 @@ public class LevelEditor extends GameEngine {
                 element.setLockedCharacter();
                 ViewPort.getInstance().setLockedElement(element);
                 GameEngine.getInstance().getGameLogic().setLockedElement(element);
+                gameLogic.setLockedElement(element);
             }
             element.setImages(loader.getSprite(type));
             element.swapImage(state);

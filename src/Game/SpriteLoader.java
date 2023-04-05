@@ -8,8 +8,8 @@ public abstract class SpriteLoader extends Loader {
 
     public SpriteLoader(String PathToMaps) {
         super("./src/Resources/Sprites/", PathToMaps);
-        TYPES = new String[]{"Mario", "Steve", "PacMan", "Ghost", "Monster", "Star", "Goomba", "Mushroom", "Plant", "Coin", "BlueBackground", "Grass", "Logo",
-                "PowerUpBlock", "SingleCloud", "TwoClouds", "Pipe", "Floor", "Stair", "Brick", "PipeExtension", "FlagPole"};
+        TYPES = new String[]{"Mario", "Steve", "PacMan", "Ghost", "Monster", "DonkeyKong", "Star", "Goomba", "Mushroom", "Plant", "Coin", "BlueBackground", "Grass", "Logo",
+                "PowerUpBlock", "SingleCloud", "TwoClouds", "Pipe", "Floor", "Stair", "Brick", "PipeExtension", "FlagPole", "Castle"};
         references.put("Mario", new String[]{"MarioStill", "MarioSprint1", "MarioSprint2", "MarioSprint3", "MarioMirrored", "MarioJump"});
         references.put("Mushroom", new String[]{"Mushroom"});
         references.put("Star", new String[]{"Star"});
@@ -32,14 +32,17 @@ public abstract class SpriteLoader extends Loader {
         references.put("PacMan", new String[]{"PacMan"});
         references.put("Ghost", new String[]{"Ghost"});
         references.put("Monster", new String[]{"Monster"});
+        references.put("Castle", new String[]{"Castle"});
+        references.put("DonkeyKong", new String[]{"DonkeyKong"});
         Dimension[] dimensions1 = new Dimension[]{new Dimension(30, 40), new Dimension(20, 40),
                 new Dimension(40, 40), new Dimension(30, 40), new Dimension(30, 30),
-                    new Dimension(30, 30), new Dimension(30, 30), new Dimension(30, 30),
-                        new Dimension(30, 30), new Dimension(30, 30), new Dimension(1600, 1600),
-                            new Dimension(30 ,30), new Dimension(950, 350), new Dimension(30, 30),
-                                new Dimension(70, 40), new Dimension(120 ,80), new Dimension(100, 100),
-                                    new Dimension(634, 228), new Dimension(30, 30), new Dimension(30 ,30),
-                                        new Dimension(40, 50), new Dimension(50, 200)};
+                    new Dimension(40, 40), new Dimension(30, 30), new Dimension(30, 30),
+                        new Dimension(30, 30), new Dimension(30, 30), new Dimension(30, 30),
+                            new Dimension(1600, 1600), new Dimension(30 ,30), new Dimension(950, 350),
+                                new Dimension(30, 30), new Dimension(70, 40), new Dimension(120 ,80),
+                                    new Dimension(100, 100), new Dimension(634, 228), new Dimension(30, 30),
+                                        new Dimension(30 ,30), new Dimension(40, 50), new Dimension(50, 200),
+                                            new Dimension(200, 200)};
         for (int i=0;i<TYPES.length;i++) {
             dimensions.put(TYPES[i], dimensions1[i]);
         }
@@ -55,7 +58,7 @@ public abstract class SpriteLoader extends Loader {
     public boolean isDynamic(String type) {
         for (int i=0;i<TYPES.length; i++) {
             if (TYPES[i].equals(type)) {
-                if (i < 9) {
+                if (i < 11) {
                     return true;
                 }
             }

@@ -83,7 +83,7 @@ public class GameEngine {
                 int size = staticElements.size();
                 for( int i=0;i<size;i++) {
                     StaticElement element = staticElements.get(i);
-                    if (viewPort.inView(element)) {
+                    if (viewPort.inView(element) && !element.isHidden()) {
                         g.drawImage(element.getImage(), element.getX() - viewPort.getX(), element.getY() - viewPort.getY(), element.getWidth(), element.getHeight(), gameFrame);
                     }
                 }

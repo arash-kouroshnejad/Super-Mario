@@ -121,7 +121,7 @@ public class MarioLogic extends Logic {
     @Override
     public void check() {
         updateTime();
-        if (timeElapsed > 80000) {
+        if (timeElapsed > 140000) {
             killMario();
             return;
         }

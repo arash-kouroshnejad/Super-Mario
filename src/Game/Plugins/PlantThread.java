@@ -13,13 +13,13 @@ public class PlantThread extends ElementManager {
                     Thread.sleep(1250);
                     plant.setHidden(false);
                     plant.setSpeedY(-1);
-                    Thread.sleep(1250);
+                    Thread.sleep(250);
                     plant.setSpeedY(0);
                     plant.swapImage(1);
-                    Thread.sleep(1250);
+                    Thread.sleep(250);
                     plant.swapImage(0);
                     plant.setSpeedY(1);
-                    Thread.sleep(1250);
+                    Thread.sleep(250);
                     plant.setSpeedY(0);
                 } catch (Exception ignored) {}
             }
