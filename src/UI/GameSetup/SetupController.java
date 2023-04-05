@@ -40,6 +40,9 @@ public class SetupController extends FrameController {
             case "Start" -> {
                 // TODO : start the game with the specifies character
                 frame.setVisible(false);
+                if (character == null) {
+                    character = "Mario";
+                }
                 GameManager.getInstance().getSetup(character);
             }
             case "ExitButton" -> {

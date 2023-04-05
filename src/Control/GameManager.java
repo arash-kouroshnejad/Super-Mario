@@ -5,6 +5,7 @@ import Game.GameLoader;
 import Game.MarioLogic;
 import Game.GameStat;
 import UI.GameSetup.SetupController;
+import UI.Leaderboard.LeaderBoardController;
 import UI.Login.LoginController;
 import UI.MainMenu.MainMenuController;
 import UI.NewGame.NewGameController;
@@ -97,6 +98,10 @@ public class GameManager {
     public void showProfile() {
         ProfileController profileController = new ProfileController(accountManager.getCurrentUser());
         profileController.show();
+    }
+    public void showResults() {
+        LeaderBoardController leaderBoardController = new LeaderBoardController(accountManager.getUsers());
+        leaderBoardController.show();
     }
     public void removeGame(int ID) {
         assetLoader = new GameLoader();

@@ -39,7 +39,8 @@ public class MainMenuController extends FrameController {
         switch (selection) {
             case "Resume" -> GameManager.getInstance().showResumeGame();
             case "NewGame" -> GameManager.getInstance().showNewGame();
-            case "Results", "Profile" -> GameManager.getInstance().showProfile();
+            case "Profile" -> GameManager.getInstance().showProfile();
+            case "Results" -> GameManager.getInstance().showResults();
             case "Store" -> GameManager.getInstance().showStore();
         }
     }
