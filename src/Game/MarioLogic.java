@@ -174,9 +174,11 @@ public class MarioLogic extends Logic {
                                     if (element.isLockedCharacter()) {
                                         if (element1.getX() >= element.getX()) {
                                             element.setSpeedX(Math.min(0, element.getSpeedX()));
+                                            element.setX(element.getX() - 10);
                                         }
                                         else {
                                             element.setSpeedX((Math.max(0, element.getSpeedX())));
+                                            element.setX(element.getX() + 10);
                                         }
                                     }
                                     else {
