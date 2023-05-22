@@ -4,10 +4,7 @@ import Core.Util.Logic;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 
 public class GameFrame extends JFrame {
     GameEngine engine;
@@ -18,6 +15,7 @@ public class GameFrame extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(true);
         setVisible(true);
+        setLayout(null);
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -47,6 +45,13 @@ public class GameFrame extends JFrame {
             @Override
             public void keyReleased(KeyEvent e) {
                 gameLogic.handleKeyRelease(e.getKeyCode());
+            }
+        });
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                gameLogic.handleMouseClick(e.getX() + ViewPort.getInstance().getX(),
+                        e.getY() + ViewPort.getInstance().getY());
             }
         });
     }

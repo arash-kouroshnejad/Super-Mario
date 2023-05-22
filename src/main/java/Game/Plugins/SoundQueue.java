@@ -1,4 +1,4 @@
-package Game;
+package Game.Plugins;
 
 import Core.Util.Logic;
 import Core.Util.Semaphore;
@@ -7,7 +7,6 @@ import Persistence.Config;
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class SoundQueue {
@@ -17,9 +16,9 @@ public class SoundQueue {
     private final HashMap<String, Long> positions = new HashMap<>();
     private String currentTrack;
     private Clip clip;
-    private Logic gameLogic;
     private final Listener listener = new Listener();
     private final Semaphore semaphore = new Semaphore(0);
+    private boolean muted;
 
     private SoundQueue() {
         Config c = Config.getInstance();
@@ -42,35 +41,47 @@ public class SoundQueue {
     }
 
     public void init(Logic l) {
-        gameLogic = l;
     }
 
     public void play(String type, boolean looped, boolean continued) {
-        currentTrack = type;
-        if (clip.isOpen()) {
-            pause();
+        if (!muted) {
+            currentTrack = type;
+            if (clip.isOpen()) {
+                pause();
+            }
+            try {
+                AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(sounds.get(type)));
+                clip.open(stream);
+                if (continued)
+                    clip.setMicrosecondPosition(positions.get(type));
+                clip.start();
+                if (looped) {
+                    clip.removeLineListener(listener);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                }
+                else {
+                    clip.addLineListener(listener);
+                    semaphore.forceLock();
+                }
+            } catch (Exception ignored) {}
         }
-        try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(sounds.get(type)));
-            clip.open(stream);
-            if (continued)
-                clip.setMicrosecondPosition(positions.get(type));
-            clip.start();
-            if (looped) {
-                clip.removeLineListener(listener);
-                clip.loop(Clip.LOOP_CONTINUOUSLY);
-            }
-            else {
-                clip.addLineListener(listener);
-                semaphore.forceLock();
-            }
-        } catch (Exception ignored) {}
     }
 
     public void pause() {
-        positions.put(currentTrack, clip.getMicrosecondPosition());
+        saveLastTrackPosition();
         clip.stop();
         clip.close();
+    }
+
+    private void saveLastTrackPosition() {positions.put(currentTrack, clip.getMicrosecondPosition());}
+
+    public void mute() {
+        pause();
+        muted = true;
+    }
+
+    public void unmute() {
+        muted = false;
     }
 
     public static SoundQueue getInstance() {

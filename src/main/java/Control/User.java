@@ -1,6 +1,6 @@
 package Control;
 
-import Game.GameStat;
+import Game.Model.GameStat;
 
 import java.util.ArrayList;
 import java.util.HashSet;

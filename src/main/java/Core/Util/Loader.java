@@ -85,10 +85,14 @@ public abstract class Loader {
                 ArrayList<StaticElement> elements = layer.getStaticElements();
                 for (StaticElement element : elements) {
                     element.setImages(getSprite(element.getType()));
+                    element.setWidth(getDimension(element.getType()).width);
+                    element.setHeight(getDimension(element.getType()).height);
                 }
                 ArrayList<DynamicElement> dynamicElements = layer.getDynamicElements();
                 for (DynamicElement de : dynamicElements) {
                     de.setImages(getSprite(de.getType()));
+                    de.setWidth(getDimension(de.getType()).width);
+                    de.setHeight(getDimension(de.getType()).height);
                     if (de.isLockedCharacter()) {
                         map.setLockedCharacter(de);
                     }

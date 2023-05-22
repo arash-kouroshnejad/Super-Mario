@@ -1,4 +1,4 @@
-package Game;
+package Game.Model;
 
 
 public class GameStat {

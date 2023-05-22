@@ -6,6 +6,7 @@ import Core.Util.Logic;
 import java.awt.*;
 import java.util.ArrayList;
 
+
 public class GameEngine {
     private final static GameEngine instance = new GameEngine();
     GameFrame gameFrame;
@@ -64,6 +65,7 @@ public class GameEngine {
         gameFrame.setVisible(false);
         animationAgent.kill();
         customPainting = false;
+        gameLogic.stop();
     }
 
     public void pauseAnimation() {
@@ -76,6 +78,9 @@ public class GameEngine {
     public void paint(Graphics g) {
         ArrayList<Layer> allLayers = layers.getALL_LAYERS();
         if (allLayers != null) {
+            if (started) {
+                gameLogic.check();
+            }
             int layerCount = allLayers.size();
             for (int  j= 0;j<layerCount;j++){
                 Layer layer = allLayers.get(j);
@@ -94,9 +99,6 @@ public class GameEngine {
                     if (viewPort.inView(element1) && !element1.isHidden()) {
                         g.drawImage(element1.getImage(), element1.getX() - viewPort.getX(), element1.getY() - viewPort.getY(), element1.getWidth(), element1.getHeight(), gameFrame);
                         // Logic code goes here
-                        if (started) {
-                            gameLogic.check();
-                        }
                         element1.move();
                     }
                 }

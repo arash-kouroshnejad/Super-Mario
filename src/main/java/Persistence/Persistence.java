@@ -2,14 +2,12 @@ package Persistence;
 
 import Control.AccountManager;
 import Control.User;
-import Game.GameStat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
 public class Persistence{
     private final static Persistence instance = new Persistence();

@@ -2,7 +2,7 @@ package UI.ResumeGame;
 
 import Control.GameManager;
 import Control.User;
-import Game.GameStat;
+import Game.Model.GameStat;
 import UI.FrameController;
 
 import javax.swing.*;

@@ -1,9 +1,14 @@
 package Control;
 
+import Core.Editor.LevelEditor;
 import Core.Render.GameEngine;
-import Game.GameLoader;
+import Game.Util.EventQueue;
+import Game.Util.GameLoader;
 import Game.MarioLogic;
-import Game.GameStat;
+import Game.Model.GameStat;
+import Game.Util.Handlers.ModalOptionSelected;
+import Game.Util.Handlers.MouseClicked;
+import Game.Util.Handlers.ModalTriggered;
 import UI.GameSetup.SetupController;
 import UI.Leaderboard.LeaderBoardController;
 import UI.Login.LoginController;
@@ -14,6 +19,8 @@ import UI.Register.RegisterController;
 import UI.ResumeGame.ResumePageController;
 import UI.Store.StoreController;
 import UI.Welcome.WelcomeController;
+
+
 
 public class GameManager {
 
@@ -86,10 +93,23 @@ public class GameManager {
         }
     }
     private void setUpFrame(MarioLogic logic, GameLoader loader, int ID) {
+        startHandlers();
         assetLoader.loadGame(ID);
+        gameLogic.getModalTypes();
         gameLogic.init(loader);
+        LevelEditor.getInstance().setLoader(loader);
         engine.init(logic);
         engine.startGame();
+    }
+    private void startHandlers() { // TODO : move this method to where it belongs !
+        var clickHandler = new MouseClicked();
+        var modalOptionHandler = new ModalOptionSelected();
+        var modalTriggerHandler = new ModalTriggered();
+        var eventQueue = EventQueue.getInstance();
+        eventQueue.addHandler(clickHandler);
+        eventQueue.addHandler(modalOptionHandler);
+        eventQueue.addHandler(modalTriggerHandler);
+        eventQueue.startHandlers();
     }
     public void showStore() {
         StoreController storeController = new StoreController(accountManager.getCurrentUser());

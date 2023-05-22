@@ -1,6 +1,7 @@
-package Game;
+package Game.Util;
 
 import Control.AccountManager;
+import Game.Model.GameStat;
 import Persistence.Config;
 import com.google.gson.Gson;
 

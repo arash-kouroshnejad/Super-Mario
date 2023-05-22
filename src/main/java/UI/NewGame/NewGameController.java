@@ -2,13 +2,11 @@ package UI.NewGame;
 
 import Control.GameManager;
 import Control.User;
-import Game.GameStat;
+import Game.Model.GameStat;
 import UI.FrameController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 public class NewGameController extends FrameController {
     public NewGameController(User user) {

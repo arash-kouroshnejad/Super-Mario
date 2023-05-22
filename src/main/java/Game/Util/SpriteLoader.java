@@ -1,4 +1,4 @@
-package Game;
+package Game.Util;
 
 import Core.Util.Loader;
 import Persistence.Config;

@@ -1,4 +1,4 @@
-package Game;
+package Game.Util;
 
 import Core.Editor.MapCreator;
 import Persistence.Config;

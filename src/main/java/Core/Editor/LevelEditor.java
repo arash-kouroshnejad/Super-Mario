@@ -4,6 +4,7 @@ import Core.Objects.*;
 import Core.Render.*;
 import Core.Util.Loader;
 import Core.Util.Logic;
+import Persistence.Config;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,15 +29,16 @@ public class LevelEditor extends GameEngine {
         this.loader = loader;
         this.creator = creator;
         this.gameLogic = gameLogic;
-        loader.loadMap(1);
+        loader.loadMap(Config.getInstance().getProperty("EditorInputMap", Integer.class));
         gameLogic.setLockedElement(ViewPort.getInstance().getLockedElement());
         GameEngine.getInstance().init(gameLogic);
         spritesFrame = new SpritePicker();
     }
 
     public void createMap() {
-        Map map = new Map(Layers.getInstance().getALL_LAYERS(), 1);
-        creator.saveMap(map, 1); // TODO : bring level editor back up again
+        int id = Config.getInstance().getProperty("EditorOutputMap", Integer.class);
+        Map map = new Map(Layers.getInstance().getALL_LAYERS(), id);
+        creator.saveMap(map, id);
     }
 
     public Loader getLoader() {
@@ -70,5 +72,28 @@ public class LevelEditor extends GameEngine {
             element.setImages(loader.getSprite(type));
             element.swapImage(state);
         }
+    }
+
+    public void removeElement(String type, int layerIndex) {
+        ArrayList<Layer> layers = Layers.getInstance().getALL_LAYERS();
+        if (layers.size() >= layerIndex && layerIndex >= 0) {
+            Layer l = layers.get(layerIndex);
+            for (StaticElement e : l.getStaticElements()) {
+                if (e.getType().equals(type)) {
+                    l.getStaticElements().remove(e);
+                    return;
+                }
+            }
+            for (DynamicElement e : l.getDynamicElements()) {
+                if (e.getType().equals(type)) {
+                    l.getDynamicElements().remove(e);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void setLoader(Loader loader) {
+        this.loader = loader;
     }
 }

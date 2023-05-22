@@ -5,20 +5,24 @@ import Core.Objects.*;
 import Core.Render.*;
 import Core.Util.Loader;
 import Core.Util.Logic;
-import Core.Util.Semaphore;
-import Game.Plugins.CoinThread;
-import Game.Plugins.Gravity;
-import Game.Plugins.PlantThread;
+import Game.Model.GameStat;
+import Game.Plugins.*;
+import Game.Util.Event;
+import Game.Util.EventQueue;
+import Game.Util.EventType;
+import Persistence.Config;
+
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class MarioLogic extends Logic {
 
     Gravity gThread = new Gravity();
     private ArrayList<DynamicElement> dynamics;
     private ArrayList<StaticElement> statics;
-
     private boolean[] inTouch;
     private boolean jumping;
     private int minY;
@@ -28,11 +32,13 @@ public class MarioLogic extends Logic {
     private final GameManager manager = GameManager.getInstance();
     private final ArrayList<ElementManager> animations = new ArrayList<>();
     private final SoundQueue soundSystem = SoundQueue.getInstance();
-    private final Semaphore semaphore = new Semaphore(0);
+    private boolean saveReady;
+    private final HashMap<String, String[]> modalTypes = new HashMap<>();
 
     public void init(Loader loader) {
         soundSystem.init(this);
         soundSystem.play("Background", true, true);
+        getModalTypes();
         Layer layer = Layers.getInstance().getALL_LAYERS().get(1);
         dynamics = layer.getDynamicElements();
         DynamicElement character = dynamics.get(0);
@@ -70,11 +76,11 @@ public class MarioLogic extends Logic {
         timeElapsed = currentGame.getTimeElapsed();
         GameEngine.getInstance().enableCustomPainting();
         mid = ViewPort.getInstance().getWidth() / 2;
-    }
+    } // TODO : clean and segregate this method !
 
     @Override
     public void stop() {
-
+        EventQueue.getInstance().killHandlers();
     }
 
     @Override
@@ -126,6 +132,10 @@ public class MarioLogic extends Logic {
         currentGame.setTimeElapsed(timeElapsed); // minus the respawn delay
     }
 
+    private int calculateRisk() {
+        return currentGame.getCoinsEarned() * (lockedElement.getX() / Config.getInstance().getProperty("MaxDist", Integer.class));
+    }
+
     @Override
     public void check() {
         updateTime();
@@ -138,6 +148,7 @@ public class MarioLogic extends Logic {
             lockedElement.setSpeedY(Math.max(0, lockedElement.getSpeedY()));
         }
         inTouch[0] = false;
+        saveReady = false;
         int size = dynamics.size();
         for (int i = 0; i < size; i++) {
             DynamicElement element = dynamics.get(i);
@@ -217,6 +228,12 @@ public class MarioLogic extends Logic {
                                     element.setSpeedY(-30); // ???
                                 }*/
                             }
+
+                            case "CheckPoint" -> {
+                                if (element.isLockedCharacter()) {
+                                    saveReady = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -284,6 +301,8 @@ public class MarioLogic extends Logic {
         g.drawString("LIVES : " + currentGame.getLives(), mid + 300, 100);
         g.drawString("SCORE : " + currentGame.getScore(), mid + 500, 100);
         g.drawString("WORLD : " + currentGame.getLevel(), mid - 500, 100);
+        if (saveReady)
+            g.drawString("HIT X TO ENTER THE SAVE MENU", mid - 100, 200);
     }
 
     @Override
@@ -300,10 +319,12 @@ public class MarioLogic extends Logic {
             case 39 -> lockedElement.setSpeedX(RIGHT); // 3 * RIGHT
             case 37 -> lockedElement.setSpeedX(LEFT); // 3 * LEFT
             case 27 ->  {
-                soundSystem.pause();
-                manager.saveProgress();
-                GameEngine.getInstance().closeGame();
-                manager.showMenu();
+                EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "PauseOptions"));
+                // manager.saveProgress();
+            }
+            case 88 -> {
+                if (saveReady)
+                    EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "SaveOptions"));
             }
         }
     }
@@ -316,6 +337,31 @@ public class MarioLogic extends Logic {
             }
             case 37, 39 -> lockedElement.setSpeedX(0);
         }
+    }
+
+    @Override
+    public void handleMouseClick(int x, int y) {
+        EventQueue.getInstance().publish(new Event(EventType.MouseClicked, x + "," + y));
+    }
+
+    public void getModalTypes() {
+        Config c = Config.getInstance();
+        String[] modalTypes = c.getProperty("ModalTypes").split(",");
+        for (String type : modalTypes) {
+            this.modalTypes.put(type, c.getProperty(type).split(","));
+        }
+    }
+
+    @Override
+    public Point getModalPosition() {
+        return new Point(ViewPort.getInstance().getX() + mid, ViewPort.getInstance().getY() +
+                (ViewPort.getInstance().getHeight() / 2) - Config.getInstance().getProperty("ModalHeight",
+                    Integer.class) / 2);
+    }
+
+    @Override
+    public String[] getModalOptions(String modalType) {
+        return modalTypes.get(modalType);
     }
 
     public GameStat getCurrentGame() {

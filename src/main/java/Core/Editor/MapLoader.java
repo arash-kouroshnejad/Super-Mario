@@ -4,7 +4,7 @@ import Core.Objects.DynamicElement;
 import Core.Objects.Layer;
 import Core.Objects.Map;
 import Core.Objects.StaticElement;
-import Game.SpriteLoader;
+import Game.Util.SpriteLoader;
 import com.google.gson.Gson;
 
 import java.io.FileReader;

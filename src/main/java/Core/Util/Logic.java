@@ -21,6 +21,7 @@ public abstract class Logic {
 
     public abstract void handleKeyPress(int keyCode);
     public abstract void handleKeyRelease(int keyCode);
+    public abstract void handleMouseClick(int x, int y);
     public abstract void check();
     public abstract void init(Loader loader);
 
@@ -30,4 +31,6 @@ public abstract class Logic {
     public abstract  void reset();
 
     public abstract void paint(Graphics g);
+    public abstract Point getModalPosition();
+    public abstract String[] getModalOptions(String modalType);
 }
