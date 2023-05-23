@@ -1,4 +1,4 @@
-package Game.Util;
+package Game.Util.Loaders;
 
 import Control.AccountManager;
 import Game.Model.GameStat;

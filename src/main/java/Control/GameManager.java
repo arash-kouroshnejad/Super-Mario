@@ -2,8 +2,8 @@ package Control;
 
 import Core.Editor.LevelEditor;
 import Core.Render.GameEngine;
-import Game.Util.EventQueue;
-import Game.Util.GameLoader;
+import Game.Util.Events.EventQueue;
+import Game.Util.Loaders.GameLoader;
 import Game.MarioLogic;
 import Game.Model.GameStat;
 import Game.Util.Handlers.ModalOptionSelected;
@@ -144,5 +144,8 @@ public class GameManager {
     }
     public GameStat getCurrentGame() {
         return currentGame;
+    }
+    public MarioLogic getGameLogic() {
+        return gameLogic;
     }
 }

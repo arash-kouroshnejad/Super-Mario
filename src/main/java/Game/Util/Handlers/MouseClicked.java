@@ -1,11 +1,10 @@
 package Game.Util.Handlers;
 
-import Core.Render.ViewPort;
 import Game.Plugins.ModalPanel;
-import Game.Util.Event;
-import Game.Util.EventHandler;
-import Game.Util.EventQueue;
-import Game.Util.EventType;
+import Game.Util.Events.Event;
+import Game.Util.Events.EventHandler;
+import Game.Util.Events.EventQueue;
+import Game.Util.Events.EventType;
 
 import java.util.Queue;
 

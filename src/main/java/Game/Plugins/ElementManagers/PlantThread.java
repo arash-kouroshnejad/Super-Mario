@@ -1,4 +1,4 @@
-package Game.Plugins;
+package Game.Plugins.ElementManagers;
 
 import Core.Objects.DynamicElement;
 import Core.Objects.ElementManager;

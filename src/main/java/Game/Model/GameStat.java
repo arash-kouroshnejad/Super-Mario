@@ -62,6 +62,7 @@ public class GameStat {
     public void earnCoin() {
         coinsEarned++;
     }
+    public void setCoinsEarned(int coinsEarned) {this.coinsEarned = coinsEarned;}
 
     public int getKillCount() {
         return killCount;

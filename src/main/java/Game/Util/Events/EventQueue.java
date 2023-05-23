@@ -1,4 +1,4 @@
-package Game.Util;
+package Game.Util.Events;
 
 
 import java.util.ArrayList;
@@ -26,12 +26,8 @@ public class EventQueue {
     }
     public synchronized void startHandlers() {
         for (var handler : handlers)
-            handler.start();
-    }
-
-    public synchronized void killHandlers() {
-        for (var handler : handlers)
-            handler.kill();
+            if (!handler.isAlive())
+                handler.start();
     }
     public void addHandler(EventHandler handler) {
         handlers.add(handler);

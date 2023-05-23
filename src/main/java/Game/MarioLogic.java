@@ -1,15 +1,19 @@
 package Game;
 
 import Control.GameManager;
+import Core.Editor.LevelEditor;
 import Core.Objects.*;
 import Core.Render.*;
 import Core.Util.Loader;
 import Core.Util.Logic;
 import Game.Model.GameStat;
-import Game.Plugins.*;
-import Game.Util.Event;
-import Game.Util.EventQueue;
-import Game.Util.EventType;
+import Game.Plugins.ElementManagers.CoinThread;
+import Game.Plugins.ElementManagers.PlantThread;
+import Game.Util.Events.Event;
+import Game.Util.Events.EventQueue;
+import Game.Util.Events.EventType;
+import Game.Plugins.Gravity;
+import Game.Plugins.SoundQueue;
 import Persistence.Config;
 
 
@@ -33,6 +37,7 @@ public class MarioLogic extends Logic {
     private final ArrayList<ElementManager> animations = new ArrayList<>();
     private final SoundQueue soundSystem = SoundQueue.getInstance();
     private boolean saveReady;
+    private int checkPointsSaved;
     private final HashMap<String, String[]> modalTypes = new HashMap<>();
 
     public void init(Loader loader) {
@@ -77,21 +82,16 @@ public class MarioLogic extends Logic {
         GameEngine.getInstance().enableCustomPainting();
         mid = ViewPort.getInstance().getWidth() / 2;
     } // TODO : clean and segregate this method !
-
     @Override
-    public void stop() {
-        EventQueue.getInstance().killHandlers();
-    }
-
+    public void stop() {}
     @Override
     public void resume() {
         soundSystem.play("Background", true, true);
     }
-
     @Override
     public void reset() {
         for (ElementManager manager : animations) {
-            manager.pause();
+            manager.kill();
         }
         animations.clear();
         gThread.remove();
@@ -100,9 +100,10 @@ public class MarioLogic extends Logic {
         setLockedElement(ViewPort.getInstance().getLockedElement());
         timeElapsed = 0;
     }
-
     private void killMario() {
         soundSystem.play("MarioDeath", false, false);
+        int coinsLost = ((checkPointsSaved + 1) * currentGame.getCoinsEarned() + calculateRisk()) / (checkPointsSaved + 4);
+        currentGame.setCoinsEarned(Math.max(currentGame.getCoinsEarned() - coinsLost, 0));
         if (currentGame.getLives() > 0) {
             currentGame.setLevel(0);
             currentGame.setScore(0);
@@ -110,6 +111,7 @@ public class MarioLogic extends Logic {
             reset();
         }
         else {
+            currentGame.setTimeElapsed(timeElapsed); // minus the respawn delay
             GameEngine.getInstance().closeGame();
             calculateScore();
             currentGame.terminate();
@@ -117,7 +119,6 @@ public class MarioLogic extends Logic {
             manager.showMenu();
         }
     }
-
     private void calculateScore() {
         int points = 10 * currentGame.getCoinsEarned();
         points += 20 * currentGame.getLives();
@@ -126,16 +127,13 @@ public class MarioLogic extends Logic {
         points += (80000 - currentGame.getTimeElapsed()) / 1000;
         currentGame.setScore(currentGame.getScore() + points);
     }
-
     private void updateTime() {
         timeElapsed += 10; // 100 fps --> 10 milliseconds per frame
-        currentGame.setTimeElapsed(timeElapsed); // minus the respawn delay
     }
-
     private int calculateRisk() {
-        return currentGame.getCoinsEarned() * (lockedElement.getX() / Config.getInstance().getProperty("MaxDist", Integer.class));
+        return (int) (currentGame.getCoinsEarned() * ((double) lockedElement.getX() /
+                Config.getInstance().getProperty("MaxDist", Integer.class)));
     }
-
     @Override
     public void check() {
         updateTime();
@@ -154,14 +152,15 @@ public class MarioLogic extends Logic {
             DynamicElement element = dynamics.get(i);
             if (!element.getType().equals("Plant")) {
                 // gravity
-                if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) {
+                if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) { // TODO : read the bottom bound from config
                     element.setHidden(true);
                     ElementManager manager = element.getManager();
                     if (manager != null) {
-                        manager.pause();
+                        manager.kill();
                     }
                     if (element.isLockedCharacter()) {
                         killMario();
+                        currentGame.setScore(Math.max(currentGame.getScore() - 30, 0));
                         return;
                     }
                 }
@@ -174,7 +173,6 @@ public class MarioLogic extends Logic {
                         switch (element1.getType()) {
                             case "FlagPole" -> {
                                 calculateScore();
-                                manager.saveProgress();
                                 currentGame.setLevel(currentGame.getLevel() + 1);
                                 reset();
                                 return;
@@ -243,7 +241,7 @@ public class MarioLogic extends Logic {
                     if (element.collidesWith(element1)) {
                         // mario
                         if (element.isLockedCharacter()) {
-                            element1.getManager().pause();
+                            element1.getManager().kill();
                             if (!element1.isHidden()) {
                                 switch(element1.getType()) {
                                     case "Coin" :
@@ -290,7 +288,6 @@ public class MarioLogic extends Logic {
             // TODO : custom Plant code
         }
     }
-
     @Override
     public void paint(Graphics g) {
         g.setColor(Color.WHITE);
@@ -304,7 +301,6 @@ public class MarioLogic extends Logic {
         if (saveReady)
             g.drawString("HIT X TO ENTER THE SAVE MENU", mid - 100, 200);
     }
-
     @Override
     public void handleKeyPress(int keyCode) {
         switch (keyCode) {
@@ -338,12 +334,10 @@ public class MarioLogic extends Logic {
             case 37, 39 -> lockedElement.setSpeedX(0);
         }
     }
-
     @Override
     public void handleMouseClick(int x, int y) {
         EventQueue.getInstance().publish(new Event(EventType.MouseClicked, x + "," + y));
     }
-
     public void getModalTypes() {
         Config c = Config.getInstance();
         String[] modalTypes = c.getProperty("ModalTypes").split(",");
@@ -351,24 +345,32 @@ public class MarioLogic extends Logic {
             this.modalTypes.put(type, c.getProperty(type).split(","));
         }
     }
-
-    @Override
     public Point getModalPosition() {
         return new Point(ViewPort.getInstance().getX() + mid, ViewPort.getInstance().getY() +
                 (ViewPort.getInstance().getHeight() / 2) - Config.getInstance().getProperty("ModalHeight",
                     Integer.class) / 2);
     }
-
-    @Override
     public String[] getModalOptions(String modalType) {
         return modalTypes.get(modalType);
     }
-
-    public GameStat getCurrentGame() {
-        return currentGame;
+    @Override
+    public void pauseElementManagers() {
+        for (var manager : animations)
+            manager.pause();
     }
-
-    public void setCurrentGame(GameStat currentGame) {
-        this.currentGame = currentGame;
+    @Override
+    public void resumeElementManagers() {
+        for (var manager : animations)
+            manager.restart();
+    }
+    @Override
+    public void saveGame() {
+        currentGame.setTimeElapsed(timeElapsed); // minus the respawn delay
+        checkPointsSaved++;
+        currentGame.setCoinsEarned(Math.max(currentGame.getCoinsEarned() - calculateRisk(), 0));
+    }
+    public void withdrawCheckpoint() { // TODO : single checkpoint only implementation
+        LevelEditor.getInstance().removeElement("CheckPoint", 2);
+        currentGame.setCoinsEarned((int) (currentGame.getCoinsEarned() + 0.25 * calculateRisk()));
     }
 }

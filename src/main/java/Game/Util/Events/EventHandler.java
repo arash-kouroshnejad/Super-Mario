@@ -1,4 +1,4 @@
-package Game.Util;
+package Game.Util.Events;
 
 import Core.Util.Semaphore;
 

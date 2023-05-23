@@ -1,9 +1,9 @@
 package Game.Plugins;
 
 import Core.Editor.LevelEditor;
-import Game.Util.Event;
-import Game.Util.EventQueue;
-import Game.Util.EventType;
+import Game.Util.Events.Event;
+import Game.Util.Events.EventQueue;
+import Game.Util.Events.EventType;
 import Persistence.Config;
 
 import java.awt.*;
