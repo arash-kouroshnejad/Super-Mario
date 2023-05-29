@@ -14,13 +14,14 @@ public class GameEngine {
 
     private boolean started;
 
+    private boolean editorMode;
+
     private final ViewPort viewPort = ViewPort.getInstance();
 
     public static GameEngine getInstance() {
         return instance;
     }
 
-    // private Graphics graphics;
 
     protected Layers layers = Layers.getInstance();
 
@@ -52,7 +53,7 @@ public class GameEngine {
         this.gameLogic = gameLogic;
         gameFrame = new GameFrame();
         viewPort.setFrame(gameFrame);
-        animationAgent = new Animation(100);
+        animationAgent = new Animation(150);
         animationAgent.start();
     }
 
@@ -65,16 +66,23 @@ public class GameEngine {
         gameFrame.setVisible(false);
         animationAgent.kill();
         customPainting = false;
-        gameLogic.stop();
+        editorMode = false;
+    }
+
+    public void enableEditorMode() {
+        editorMode = true;
     }
 
     public void pauseAnimation() {
         animationAgent.pause();
+        gameLogic.stop();
     }
 
     public void resumeAnimation() {
         animationAgent.restart();
+        gameLogic.resume();
     }
+
     public void paint(Graphics g) {
         ArrayList<Layer> allLayers = layers.getALL_LAYERS();
         if (allLayers != null) {
@@ -89,7 +97,8 @@ public class GameEngine {
                 for( int i=0;i<size;i++) {
                     StaticElement element = staticElements.get(i);
                     if (viewPort.inView(element) && !element.isHidden()) {
-                        g.drawImage(element.getImage(), element.getX() - viewPort.getX(), element.getY() - viewPort.getY(), element.getWidth(), element.getHeight(), gameFrame);
+                        g.drawImage(element.getImage(), element.getX() - viewPort.getX(), element.getY() - viewPort.getY(),
+                                element.getWidth(), element.getHeight(), gameFrame);
                     }
                 }
                 ArrayList<DynamicElement> dynamicElements = layer.getDynamicElements();
@@ -97,9 +106,11 @@ public class GameEngine {
                 for (int i=0;i<size;i++) {
                     DynamicElement element1 = dynamicElements.get(i);
                     if (viewPort.inView(element1) && !element1.isHidden()) {
-                        g.drawImage(element1.getImage(), element1.getX() - viewPort.getX(), element1.getY() - viewPort.getY(), element1.getWidth(), element1.getHeight(), gameFrame);
+                        g.drawImage(element1.getImage(), element1.getX() - viewPort.getX(), element1.getY() - viewPort.getY(),
+                                element1.getWidth(), element1.getHeight(), gameFrame);
                         // Logic code goes here
-                        element1.move();
+                        if (element1.isLockedCharacter() || !editorMode)
+                            element1.move();
                     }
                 }
             }

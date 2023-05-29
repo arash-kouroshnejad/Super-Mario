@@ -38,7 +38,7 @@ public class ModalPanel {
         margin_Top_Bottom = (modalHeight - optionHeight) / 2;
         margin_Left_Right = (modalWidth - visibles.length * optionWidth - (visibles.length - 1) * 40) / 2;
         coordinates.x = coordinates.x - (modalWidth) / 2;
-        editor.insertAt("Modal", coordinates.x, coordinates.y,
+        editor.staticInsert("Modal", coordinates.x, coordinates.y,
                 0, layer - 1);
 
         // add elements to the panel
@@ -52,7 +52,7 @@ public class ModalPanel {
         coordinates.x = coordinates.x + margin_Left_Right;
         coordinates.y = coordinates.y + margin_Top_Bottom;
         for (int i = 0; i < visibles.length; i++) {
-            editor.insertAt(visibles[i], coordinates.x + i * optionWidth + padding, coordinates.y, 0,
+            editor.staticInsert(visibles[i], coordinates.x + i * optionWidth + padding, coordinates.y, 0,
                     layer - 1);
             padding += defaultPadding;
         }

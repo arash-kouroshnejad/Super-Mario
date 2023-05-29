@@ -25,7 +25,7 @@ public class SetupPage extends Navigable {
         mainPanel.add(panel1, BorderLayout.SOUTH);
         panel1.setPreferredSize(new Dimension(300, 400));
         panel1.setBounds(getWidth() / 2, 500, 300, 400);
-        button1.setName("Mario");
+        button1.setName("MiniMario");
         button2.setName("Monster");
         button3.setName("Steve");
         button4.setName("DonkeyKong");

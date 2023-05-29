@@ -2,13 +2,12 @@ package Control;
 
 import Core.Editor.LevelEditor;
 import Core.Render.GameEngine;
+import Game.Plugins.ElementManagers.ItemManager;
 import Game.Util.Events.EventQueue;
+import Game.Util.Handlers.*;
 import Game.Util.Loaders.GameLoader;
 import Game.MarioLogic;
 import Game.Model.GameStat;
-import Game.Util.Handlers.ModalOptionSelected;
-import Game.Util.Handlers.MouseClicked;
-import Game.Util.Handlers.ModalTriggered;
 import UI.GameSetup.SetupController;
 import UI.Leaderboard.LeaderBoardController;
 import UI.Login.LoginController;
@@ -93,20 +92,24 @@ public class GameManager {
         }
     }
     private void setUpFrame(MarioLogic logic, GameLoader loader, int ID) {
-        startHandlers();
         assetLoader.loadGame(ID);
         gameLogic.getModalTypes();
         gameLogic.init(loader);
+        startHandlers();
         LevelEditor.getInstance().setLoader(loader);
         engine.init(logic);
         engine.startGame();
     }
     private void startHandlers() { // TODO : move this method to where it belongs !
+        var keyHandler = new KeyToggled();
         var clickHandler = new MouseClicked();
+        var generator = new ElementGenerator();
         var modalOptionHandler = new ModalOptionSelected();
         var modalTriggerHandler = new ModalTriggered();
         var eventQueue = EventQueue.getInstance();
+        eventQueue.addHandler(keyHandler);
         eventQueue.addHandler(clickHandler);
+        eventQueue.addHandler(generator);
         eventQueue.addHandler(modalOptionHandler);
         eventQueue.addHandler(modalTriggerHandler);
         eventQueue.startHandlers();

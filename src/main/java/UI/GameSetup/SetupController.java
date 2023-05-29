@@ -42,7 +42,7 @@ public class SetupController extends FrameController {
                 // TODO : start the game with the specifies character
                 frame.setVisible(false);
                 if (character == null) {
-                    character = "Mario";
+                    character = "MiniMario";
                 }
                 GameManager.getInstance().getSetup(character);
             }

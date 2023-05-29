@@ -1,6 +1,5 @@
 package Core.Objects;
 
-import Core.Objects.StaticElement;
 
 public class DynamicElement extends StaticElement {
     int speedX, speedY;

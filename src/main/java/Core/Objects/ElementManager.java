@@ -3,14 +3,17 @@ package Core.Objects;
 import Core.Util.Semaphore;
 
 public abstract class ElementManager extends Thread{
-    private final DynamicElement element;
-    private final Runnable animation;
+
+    protected final DynamicElement element;
+    protected Runnable animation;
 
     private final Semaphore semaphore = new Semaphore(0);
 
     private boolean paused;
 
     protected boolean killed;
+
+    protected boolean mirrored;
 
     public ElementManager( DynamicElement element, Runnable animation) {
         this.element = element;
@@ -23,6 +26,16 @@ public abstract class ElementManager extends Thread{
                 semaphore.forceLock();
             animation.run();
         }
+    }
+
+    public void resetState() {}
+
+    public void setMirrored(boolean mirrored) {
+        this.mirrored = mirrored;
+    }
+
+    public boolean isMirrored() {
+        return mirrored;
     }
 
     public void pause() {
@@ -40,5 +53,9 @@ public abstract class ElementManager extends Thread{
 
     public boolean isKilled() {
         return killed;
+    }
+
+    public void setAnimation(Runnable animation) {
+        this.animation = animation;
     }
 }

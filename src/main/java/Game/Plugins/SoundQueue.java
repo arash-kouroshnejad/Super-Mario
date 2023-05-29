@@ -18,7 +18,7 @@ public class SoundQueue {
     private Clip clip;
     private final Listener listener = new Listener();
     private final Semaphore semaphore = new Semaphore(0);
-    private boolean muted;
+    private boolean muted = true;
 
     private SoundQueue() {
         Config c = Config.getInstance();

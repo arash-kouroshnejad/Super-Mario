@@ -8,6 +8,7 @@ import Core.Util.Loader;
 import Core.Util.Logic;
 import Game.Model.GameStat;
 import Game.Plugins.ElementManagers.CoinThread;
+import Game.Plugins.ElementManagers.MarioThread;
 import Game.Plugins.ElementManagers.PlantThread;
 import Game.Util.Events.Event;
 import Game.Util.Events.EventQueue;
@@ -20,6 +21,7 @@ import Persistence.Config;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 public class MarioLogic extends Logic {
@@ -27,7 +29,7 @@ public class MarioLogic extends Logic {
     Gravity gThread = new Gravity();
     private ArrayList<DynamicElement> dynamics;
     private ArrayList<StaticElement> statics;
-    private boolean[] inTouch;
+    private boolean[] inTouch; // networked marios jump control ?
     private boolean jumping;
     private int minY;
     int mid;
@@ -39,6 +41,7 @@ public class MarioLogic extends Logic {
     private boolean saveReady;
     private int checkPointsSaved;
     private final HashMap<String, String[]> modalTypes = new HashMap<>();
+    private final HashSet<StaticElement> activatedBlocks = new HashSet<>();
 
     public void init(Loader loader) {
         soundSystem.init(this);
@@ -48,8 +51,10 @@ public class MarioLogic extends Logic {
         dynamics = layer.getDynamicElements();
         DynamicElement character = dynamics.get(0);
         currentGame = manager.getCurrentGame();
-        character = new DynamicElement(character.getX(), character.getY(), character.getWidth(), character.getHeight(),
-                character.getSpeedX(), character.getSpeedY(), currentGame.getCharacter());
+        lockedElement = ViewPort.getInstance().getLockedElement();
+        /*character = new DynamicElement(character.getX(), character.getY() + loader.getDimension(character.getType()).height
+                - loader.getDimension(currentGame.getCharacter()).height, character.getWidth(), character.getHeight(),
+                    character.getSpeedX(), character.getSpeedY(), currentGame.getCharacter());
         dynamics.remove(0);
         dynamics.add(0, character);
         character.setLockedCharacter();
@@ -57,7 +62,9 @@ public class MarioLogic extends Logic {
         ViewPort.getInstance().setLockedElement(character);
         GameEngine.getInstance().getMap().setLockedCharacter(character);
         character.setImages(loader.getSprite(currentGame.getCharacter()));
-        layer = Layers.getInstance().getALL_LAYERS().get(2);
+        character.setWidth(loader.getDimension(character.getType()).width);
+        character.setHeight(loader.getDimension(character.getType()).height);*/
+        layer = Layers.getInstance().getALL_LAYERS().get(2); // TODO : read from config
         statics = layer.getStaticElements();
         gThread.setElements(dynamics);
         gThread.apply();
@@ -76,17 +83,42 @@ public class MarioLogic extends Logic {
                     ct.start();
                     animations.add(ct);
                 }
+                case "MiniMario", "MegaMario", "FireMario" -> { // TODO : attach handlers for other characters as well getting them from config
+                    MarioThread mt = new MarioThread(de);
+                    de.setManager(mt);
+                    mt.start();
+                    mt.pause();
+                    animations.add(mt);
+                }
             }
         }
         timeElapsed = currentGame.getTimeElapsed();
         GameEngine.getInstance().enableCustomPainting();
         mid = ViewPort.getInstance().getWidth() / 2;
+        activatedBlocks.clear();
     } // TODO : clean and segregate this method !
     @Override
-    public void stop() {}
+    public void stop() {
+        pauseManagers();
+        soundSystem.pause();
+    }
+    private void pauseManagers() {
+        for (var dynamicElement : dynamics)
+            if (dynamicElement.getManager() != null)
+                dynamicElement.getManager().pause();
+    }
+    private void resumeManagers() {
+        for (var dynamicElement : dynamics) {
+            String type = dynamicElement.getType();
+            ElementManager manager = dynamicElement.getManager();
+            if (manager != null && !(type.equals("MiniMario") || type.equals("MegaMario") || type.equals("FireMario")))
+                manager.restart();
+        }
+    }
     @Override
     public void resume() {
         soundSystem.play("Background", true, true);
+        resumeManagers();
     }
     @Override
     public void reset() {
@@ -112,6 +144,7 @@ public class MarioLogic extends Logic {
         }
         else {
             currentGame.setTimeElapsed(timeElapsed); // minus the respawn delay
+            soundSystem.pause();
             GameEngine.getInstance().closeGame();
             calculateScore();
             currentGame.terminate();
@@ -150,142 +183,151 @@ public class MarioLogic extends Logic {
         int size = dynamics.size();
         for (int i = 0; i < size; i++) {
             DynamicElement element = dynamics.get(i);
-            if (!element.getType().equals("Plant")) {
-                // gravity
-                if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) { // TODO : read the bottom bound from config
-                    element.setHidden(true);
-                    ElementManager manager = element.getManager();
-                    if (manager != null) {
-                        manager.kill();
-                    }
-                    if (element.isLockedCharacter()) {
-                        killMario();
-                        currentGame.setScore(Math.max(currentGame.getScore() - 30, 0));
-                        return;
-                    }
+            // gravity
+            if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) { // TODO : read the bottom bound from config
+                element.setHidden(true);
+                ElementManager manager = element.getManager();
+                if (manager != null) {
+                    manager.kill();
                 }
-                // collision with statics
-                int size2 = statics.size();
-                inTouch[i] = false;
-                for (int j = 0; j < size2; j++) {
-                    StaticElement element1 = statics.get(j);
-                    if (element.collidesWith(element1)) {
-                        switch (element1.getType()) {
-                            case "FlagPole" -> {
-                                calculateScore();
-                                currentGame.setLevel(currentGame.getLevel() + 1);
-                                reset();
-                                return;
-                            }
+                if (element.isLockedCharacter()) {
+                    killMario();
+                    currentGame.setScore(Math.max(currentGame.getScore() - 30, 0));
+                    return;
+                }
+            }
+            // collision with statics
+            int size2 = statics.size();
+            // inTouch[i] = false;
+            for (int j = 0; j < size2; j++) {
+                StaticElement element1 = statics.get(j);
+                if (element.collidesWith(element1)) {
+                    switch (element1.getType()) {
+                        case "FlagPole" -> {
+                            calculateScore();
+                            currentGame.setLevel(currentGame.getLevel() + 1);
+                            reset();
+                            return;
+                        }
 
-                            case "Castle" -> {
-                                calculateScore();
-                                manager.saveProgress();
-                                GameEngine.getInstance().closeGame();
-                                manager.showMenu();
-                            }
+                        case "Castle" -> {
+                            calculateScore();
+                            manager.saveProgress();
+                            soundSystem.pause();
+                            GameEngine.getInstance().closeGame();
+                            manager.showMenu();
+                        }
 
-                            case "Floor", "Pipe", "Stair", "Brick", "PowerUpBlock", "PipeExtension" -> {
-                                if (element.collidesHorizontally(element1)) {
-                                    // horizontal collision
-                                    if (element.isLockedCharacter()) {
-                                        if (element1.getX() >= element.getX()) {
-                                            element.setSpeedX(Math.min(0, element.getSpeedX()));
-                                            element.setX(element.getX() - 10);
-                                        }
-                                        else {
-                                            element.setSpeedX((Math.max(0, element.getSpeedX())));
-                                            element.setX(element.getX() + 10);
-                                        }
+                        case "Floor", "Pipe", "Stair", "Brick", "PowerUpBlock", "PipeExtension" -> {
+                            if (element.collidesHorizontally(element1)) {
+                                // horizontal collision
+                                if (element.isLockedCharacter()) {
+                                    if (element1.getX() >= element.getX()) {
+                                        element.setSpeedX(Math.min(0, element.getSpeedX()));
+                                        element.setX(element.getX() - 10);
                                     }
                                     else {
-                                        element.setSpeedX(-element.getSpeedX());
+                                        element.setSpeedX((Math.max(0, element.getSpeedX())));
+                                        element.setX(element.getX() + 10);
                                     }
-                                } else {
-                                    // vertical collision
-                                    if (element.isLockedCharacter()) {
-                                        if (Math.abs(element.getBounds().TOP - element1.getBounds().BOTTOM) < 10) {
-                                            element.setSpeedY(Math.max(0, element.getSpeedY()));
-                                            if (element1.getType().equals("PowerUpBlock")) {
-                                                // TODO : earn POWER UP
+                                }
+                                else {
+                                    element.setSpeedX(-element.getSpeedX());
+                                }
+                            } else {
+                                // vertical collision
+                                if (element.isLockedCharacter()) {
+                                    if (Math.abs(element.getBounds().TOP - element1.getBounds().BOTTOM) < 10) {
+                                        element.setSpeedY(Math.max(0, element.getSpeedY()));
+                                        if (element1.getType().equals("PowerUpBlock")) {
+                                            if (!activatedBlocks.contains(element1)) {
+                                                // TODO : remove hardcoded "flower"
+                                                activatedBlocks.add(element1);
+                                                EventQueue.getInstance().publish(new Event(EventType.PowerUpTriggered,
+                                                        element1.getX() + "x" + (element1.getY() - 18)));
                                                 element1.swapImage(1);
                                             }
-                                        } else {
-                                            inTouch[0] = true;
-                                            element.setSpeedY(Math.min(0, element.getSpeedY()));
                                         }
-                                    }
-                                    else {
-                                        if (!inTouch[i]) {
-                                            inTouch[i] = true;
-                                            element.setSpeedY(-element.getSpeedY());
-                                        }
+                                    } else {
+                                        inTouch[0] = true;
+                                        element.setSpeedY(Math.min(0, element.getSpeedY()));
+                                        if (lockedElement.getSpeedX() == 0)
+                                            lockedElement.getManager().resetState();
                                     }
                                 }
-                                /*if (element.getType().equals("Star")) {
-                                    element.setSpeedY(-30); // ???
-                                }*/
+                                else {
+                                    // element.setSpeedY(0);
+                                    element.setSpeedY(Math.min(0, - (int) ((0.9) * element.getSpeedY())));
+                                }
                             }
+                        }
 
-                            case "CheckPoint" -> {
-                                if (element.isLockedCharacter()) {
-                                    saveReady = true;
-                                }
+                        case "CheckPoint" -> {
+                            if (element.isLockedCharacter()) {
+                                saveReady = true;
                             }
-                        }
-                    }
-                }
-                // collision with dynamics
-                for (int j = i + 1 ; j < size; j++) {
-                    DynamicElement element1 = dynamics.get(j);
-                    if (element.collidesWith(element1)) {
-                        // mario
-                        if (element.isLockedCharacter()) {
-                            element1.getManager().kill();
-                            if (!element1.isHidden()) {
-                                switch(element1.getType()) {
-                                    case "Coin" :
-                                        soundSystem.play("CoinEarned", false, false);
-                                        currentGame.earnCoin();
-                                        element1.setHidden(true);
-                                    case "Star":
-                                        // TODO : earn POWER UP
-                                        element1.setHidden(true);
-                                        break;
-                                    case "Plant":
-                                        if (!element1.isHidden()) {
-                                            killMario();
-                                            return;
-                                        }
-                                    case "Goomba":
-                                        if (!element1.isHidden()) {
-                                            if (element.collidesHorizontally(element1)) {
-                                                // TODO : TEST PROPER DEATH FUNCTIONALITY WITH CRAPPY COLLISION DETECTION
-                                                killMario();
-                                                return;
-                                            }
-                                            else {
-                                                element1.setHidden(true);
-                                                currentGame.killEnemy();
-                                            }
-                                        }
-                                        break;
-                                    case "Mushroom":
-                                        // TODO : earn POWER UP
-                                        element1.setHidden(true);
-                                        break;
-                                }
-                                soundSystem.play("Background", true, true);
-                            }
-                        }
-                        else {
-                            element.setSpeedX(-element.getSpeedX());
-                            element1.setSpeedX(-element1.getSpeedX());
                         }
                     }
                 }
             }
-            // TODO : custom Plant code
+            // collision with dynamics
+            for (int j = i + 1 ; j < size; j++) {
+                DynamicElement element1 = dynamics.get(j);
+                if (element.collidesWith(element1)) {
+                    // mario
+                    if (element.isLockedCharacter()) {
+                        if (element1.getManager() != null)
+                            element1.getManager().kill(); // TODO : kill mario or the enemy ??!!
+                        if (!element1.isHidden()) {
+                            switch(element1.getType()) {
+                                case "Coin" :
+                                    soundSystem.play("CoinEarned", false, false);
+                                    currentGame.earnCoin();
+                                    element1.setHidden(true);
+                                case "Star":
+                                    // TODO : earn POWER UP
+                                    element1.setHidden(true);
+                                    break;
+                                case "Plant":
+                                    if (!element1.isHidden()) {
+                                        killMario();
+                                        return;
+                                    }
+                                case "Goomba":
+                                    if (!element1.isHidden()) {
+                                        if (element.collidesHorizontally(element1)) {
+                                            // TODO : TEST PROPER DEATH FUNCTIONALITY WITH CRAPPY COLLISION DETECTION
+                                            killMario();
+                                            return;
+                                        }
+                                        else {
+                                            element1.setHidden(true);
+                                            currentGame.killEnemy();
+                                        }
+                                    }
+                                    break;
+                                case "Mushroom":
+                                    // TODO : earn POWER UP
+                                    element1.setHidden(true);
+                                    break;
+                                case "Flower" :
+                                    if (!element1.isHidden()) {
+                                        element1.setHidden(true);
+                                        if (element.isLockedCharacter()) {
+                                            // TODO : earn power up
+
+                                        }
+                                    }
+                            }
+                            soundSystem.play("Background", true, true);
+                        }
+                    }
+                    else {
+                        element.setSpeedX(-element.getSpeedX());
+                        element1.setSpeedX(-element1.getSpeedX());
+                    }
+                }
+            }
         }
     }
     @Override
@@ -303,25 +345,21 @@ public class MarioLogic extends Logic {
     }
     @Override
     public void handleKeyPress(int keyCode) {
-        switch (keyCode) {
-            case 38 -> {
-                jumping = true;
-                if (inTouch[0]) {
-                    minY = lockedElement.getY() - 160;
-                    lockedElement.setSpeedY(6 * UP);
+        if (keyCode == 88 && saveReady) { // specific handling of the checkpoint trigger
+            EventQueue.getInstance().publish(new Event(EventType.KeyToggled, keyCode + ",Press"));
+        } else {
+            switch (keyCode) {
+                case 38 -> {
+                    jumping = true;
+                    if (inTouch[0]) {
+                        minY = lockedElement.getY() - 160;
+                        lockedElement.setSpeedY(6 * UP);
+                    }
                 }
-            }
-            case 40 -> lockedElement.setSpeedY(3 * DOWN);
-            case 39 -> lockedElement.setSpeedX(RIGHT); // 3 * RIGHT
-            case 37 -> lockedElement.setSpeedX(LEFT); // 3 * LEFT
-            case 27 ->  {
-                EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "PauseOptions"));
-                // manager.saveProgress();
-            }
-            case 88 -> {
-                if (saveReady)
-                    EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "SaveOptions"));
-            }
+                case 39 -> lockedElement.setSpeedX(RIGHT); // 3 * RIGHT
+                case 37 -> lockedElement.setSpeedX(LEFT); // 3 * LEFT
+            } // TODO : move gravity into engine and pause it from the event handler
+            EventQueue.getInstance().publish(new Event(EventType.KeyToggled, keyCode + ",Press"));
         }
     }
     @Override
@@ -333,6 +371,7 @@ public class MarioLogic extends Logic {
             }
             case 37, 39 -> lockedElement.setSpeedX(0);
         }
+        EventQueue.getInstance().publish(new Event(EventType.KeyToggled, keyCode + ",Release"));
     }
     @Override
     public void handleMouseClick(int x, int y) {
@@ -372,5 +411,8 @@ public class MarioLogic extends Logic {
     public void withdrawCheckpoint() { // TODO : single checkpoint only implementation
         LevelEditor.getInstance().removeElement("CheckPoint", 2);
         currentGame.setCoinsEarned((int) (currentGame.getCoinsEarned() + 0.25 * calculateRisk()));
+    }
+    public GameStat getCurrentGame() {
+        return currentGame;
     }
 }

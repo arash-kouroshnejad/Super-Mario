@@ -25,10 +25,13 @@ public class LevelEditor extends GameEngine {
 
     private MapCreator creator;
 
+    private DynamicElement lastAdded;
+
     public void init(MapLoader loader, Logic gameLogic, MapCreator creator) {
         this.loader = loader;
         this.creator = creator;
         this.gameLogic = gameLogic;
+        GameEngine.getInstance().enableEditorMode();
         loader.loadMap(Config.getInstance().getProperty("EditorInputMap", Integer.class));
         gameLogic.setLockedElement(ViewPort.getInstance().getLockedElement());
         GameEngine.getInstance().init(gameLogic);
@@ -46,6 +49,15 @@ public class LevelEditor extends GameEngine {
     }
 
     public void insertAt(String type, int x, int y, int state, int layerIndex) {
+        insertAt(type, x, y, state, spritesFrame.getSpeedX(), spritesFrame.getSpeedY(), layerIndex);
+    }
+    // static element insertion
+
+    public void staticInsert(String type, int x, int y, int state, int layerIndex) {
+        insertAt(type, x, y, state, 0, 0, layerIndex);
+    }
+
+    public void insertAt(String type, int x, int y, int state, int speedX, int speedY, int layerIndex) {
         // ugly code, layers is redundant really !!
         ArrayList<Layer> layers = this.layers.getALL_LAYERS();
         if (layers.size() <= layerIndex) {
@@ -54,7 +66,7 @@ public class LevelEditor extends GameEngine {
         Layer layer = layers.get(layerIndex);
         Dimension d = loader.getDimension(type);
         if (loader.isDynamic(type)) {
-            DynamicElement element = new DynamicElement(x, y, d.width, d.height, spritesFrame.getSpeedX(), spritesFrame.getSpeedY(),
+            DynamicElement element = new DynamicElement(x, y, d.width, d.height, speedX, speedY,
                     type);
             layer.addDynamicElement(element);
             if (loader.isLocked(type)) {
@@ -65,6 +77,7 @@ public class LevelEditor extends GameEngine {
             }
             element.setImages(loader.getSprite(type));
             element.swapImage(state);
+            lastAdded = element;
         }
         else {
             StaticElement element = new StaticElement(x, y, d.width, d.height, type);
@@ -73,10 +86,21 @@ public class LevelEditor extends GameEngine {
             element.swapImage(state);
         }
     }
+    // dynamic element insertion
+
+    public void attachManager(Class<? extends ElementManager> c) {
+        try {
+            var manager = c.getConstructor(DynamicElement.class).newInstance(lastAdded);
+            lastAdded.setManager(manager);
+            manager.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void removeElement(String type, int layerIndex) {
         ArrayList<Layer> layers = Layers.getInstance().getALL_LAYERS();
-        if (layers.size() >= layerIndex && layerIndex >= 0) {
+        if (layers.size() > layerIndex && layerIndex >= 0) {
             Layer l = layers.get(layerIndex);
             for (StaticElement e : l.getStaticElements()) {
                 if (e.getType().equals(type)) {

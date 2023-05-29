@@ -45,7 +45,8 @@ public abstract class Loader {
             ArrayList<Image> arr = new ArrayList<>();
             for (String str : references.get(type)) {
                 try {
-                    arr.add(ImageIO.read(new File(PathToSprites + str + ".png")));
+                    arr.add(ImageIO.read(new File(PathToSprites + str + ".png")).getScaledInstance(
+                            getDimension(type).width, getDimension(type).height, Image.SCALE_SMOOTH));
                 } catch (Exception e) {
                     System.out.println("Error Reading " + type + ":" + str);
                 }
