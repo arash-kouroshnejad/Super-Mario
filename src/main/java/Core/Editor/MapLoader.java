@@ -7,36 +7,27 @@ import Core.Objects.StaticElement;
 import Game.Util.Loaders.SpriteLoader;
 import com.google.gson.Gson;
 
+import java.awt.geom.Line2D;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MapLoader extends SpriteLoader {
     public MapLoader(String PathToMaps) {
         super(PathToMaps);
     }
 
-    @Override
-    public boolean isLocked(String type) {
-        return super.isLocked(type);
-    }
-
-    @Override
-    public boolean isDynamic(String type) {
-        return super.isDynamic(type);
-    }
     public void loadMap(int ID) {
         Gson gson = new Gson();
         try {
             FileReader reader = new FileReader(PathToMaps + ID + ".map");
             Map map = gson.fromJson(reader, Map.class);
-            ArrayList<Layer> layers = map.getLAYERS();
+            List<Layer> layers = map.getLAYERS();
             for (Layer layer : layers) {
-                ArrayList<StaticElement> elements = layer.getStaticElements();
-                for (StaticElement element : elements) {
+                for (StaticElement element : layer.getStaticElements()) {
                     element.setImages(getSprite(element.getType()));
                 }
-                ArrayList<DynamicElement> dynamicElements = layer.getDynamicElements();
-                for (DynamicElement de : dynamicElements) {
+                for (DynamicElement de : layer.getDynamicElements()) {
                     de.setImages(getSprite(de.getType()));
                     if (de.isLockedCharacter()) {
                         map.setLockedCharacter(de);

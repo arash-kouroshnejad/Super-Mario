@@ -25,12 +25,8 @@ public abstract class SpriteLoader extends Loader {
             dimensions.put(type, new Dimension(dims[0], dims[1]));
         }
         dynamicTypes = c.getProperty("Dynamics").split(",");
+        lockedElements = c.getProperty("LockedElements").split(",");
         loadSprites();
-    }
-
-    @Override
-    public boolean isLocked(String type) {
-        return type.equals("Mario") || type.equals("PacMan") || type.equals("Ghost") || type.equals("Steve");
     }
 
     @Override

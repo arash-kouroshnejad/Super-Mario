@@ -1,11 +1,12 @@
 package Core.Objects;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Layer {
     private final int index;
-    private final ArrayList<StaticElement> StaticElements = new ArrayList<>();
-    private final ArrayList<DynamicElement> DynamicElements = new ArrayList<>();
+    private final CopyOnWriteArrayList<StaticElement> StaticElements = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<DynamicElement> DynamicElements = new CopyOnWriteArrayList<>();
 
     public Layer(ArrayList<StaticElement> staticElements, ArrayList<DynamicElement> dynamicElements, int index) {
         this.StaticElements.addAll(staticElements);
@@ -17,11 +18,11 @@ public class Layer {
         return index;
     }
 
-    public ArrayList<StaticElement> getStaticElements() {
+    public CopyOnWriteArrayList<StaticElement> getStaticElements() {
         return StaticElements;
     }
 
-    public ArrayList<DynamicElement> getDynamicElements() {
+    public CopyOnWriteArrayList<DynamicElement> getDynamicElements() {
         return DynamicElements;
     }
 
@@ -30,4 +31,8 @@ public class Layer {
     }
 
     public void addDynamicElement(DynamicElement de) {DynamicElements.add(de);}
+
+    public void addStaticElement(StaticElement element, int index) {StaticElements.add(index, element);}
+
+    public void addDynamicElement(DynamicElement de, int index) {DynamicElements.add(index, de);}
 }

@@ -101,7 +101,7 @@ public class GameManager {
         engine.startGame();
     }
     private void startHandlers() { // TODO : move this method to where it belongs !
-        var keyHandler = new KeyToggled();
+        /*var keyHandler = new KeyToggled();
         var clickHandler = new MouseClicked();
         var generator = new ElementGenerator();
         var modalOptionHandler = new ModalOptionSelected();
@@ -112,7 +112,7 @@ public class GameManager {
         eventQueue.addHandler(generator);
         eventQueue.addHandler(modalOptionHandler);
         eventQueue.addHandler(modalTriggerHandler);
-        eventQueue.startHandlers();
+        eventQueue.startHandlers();*/
     }
     public void showStore() {
         StoreController storeController = new StoreController(accountManager.getCurrentUser());

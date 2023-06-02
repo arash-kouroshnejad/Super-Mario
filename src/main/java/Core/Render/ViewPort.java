@@ -35,18 +35,17 @@ public class ViewPort {
 
     public boolean inView(StaticElement element) {
         if (lockedElement != null) {
-            if (element.getX() - x > width) {
+            if (Math.min(Math.abs(element.getBounds().LEFT - lockedElement.getX()),
+                    Math.abs(element.getBounds().RIGHT - lockedElement.getX())) > width / 2)
                 return false;
-            }
             return element.getY() - y <= height;
         }
         return true;
     }
 
     public void update() {
-        if (lockedElement != null) {
+        if (lockedElement != null)
             x = lockedElement.getX() - width / 2;
-        }
         frame.repaint();
         frame.revalidate();
     }

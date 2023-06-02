@@ -15,24 +15,26 @@ public class ItemManager extends ElementManager {
         @Override
             public void run() {
                 try {
-                    element.setSpeedY(UP);
-                    Thread.sleep(200);
+                    element.setSpeedY(2 * UP);
+                    Thread.sleep(400);
                     element.setSpeedY(0);
                     if (!element.getType().equals("Flower")) {
+                        Thread.sleep(3000);
                         element.setSpeedX(RIGHT);
                         if (element.getType().equals("Star")) {
                             while (ViewPort.getInstance().inView(element)) {
                                 if (element.getSpeedY() == 0) {
-                                    element.setSpeedY(-UP);
-                                    sleep(1000);
-                                    element.setSpeedY(0);
-                                    sleep(1000);
+                                    element.setY(element.getY() - 5);
+                                    element.setSpeedY(UP);
+                                    sleep(3000);
                                 }
                             }
                         }
                     }
-                    element.setHidden(true);
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                element.getManager().kill(); // TODO : resolve null pointer exception error
             }
         }
 }

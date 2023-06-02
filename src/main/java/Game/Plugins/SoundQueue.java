@@ -19,6 +19,7 @@ public class SoundQueue {
     private final Listener listener = new Listener();
     private final Semaphore semaphore = new Semaphore(0);
     private boolean muted = true;
+    private boolean paused;
 
     private SoundQueue() {
         Config c = Config.getInstance();
@@ -44,6 +45,7 @@ public class SoundQueue {
     }
 
     public void play(String type, boolean looped, boolean continued) {
+        paused = false;
         if (!muted) {
             currentTrack = type;
             if (clip.isOpen()) {
@@ -71,6 +73,7 @@ public class SoundQueue {
         saveLastTrackPosition();
         clip.stop();
         clip.close();
+        paused = true;
     }
 
     private void saveLastTrackPosition() {positions.put(currentTrack, clip.getMicrosecondPosition());}
@@ -82,6 +85,10 @@ public class SoundQueue {
 
     public void unmute() {
         muted = false;
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     public static SoundQueue getInstance() {

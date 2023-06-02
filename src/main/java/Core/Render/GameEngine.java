@@ -2,6 +2,7 @@ package Core.Render;
 
 import Core.Objects.*;
 import Core.Util.Logic;
+import Core.Util.Semaphore;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 public class GameEngine {
     private final static GameEngine instance = new GameEngine();
     GameFrame gameFrame;
+
     protected GameEngine() {}
 
     private boolean started;
@@ -26,6 +28,8 @@ public class GameEngine {
     protected Layers layers = Layers.getInstance();
 
     private Map map;
+
+    private Semaphore mutex = Semaphore.getMutex();
 
     public Map getMap() {
         return map;
@@ -84,33 +88,26 @@ public class GameEngine {
     }
 
     public void paint(Graphics g) {
-        ArrayList<Layer> allLayers = layers.getALL_LAYERS();
+        mutex.acquire();
+        java.util.List<Layer> allLayers = layers.getALL_LAYERS();
         if (allLayers != null) {
             if (started) {
                 gameLogic.check();
             }
-            int layerCount = allLayers.size();
-            for (int  j= 0;j<layerCount;j++){
-                Layer layer = allLayers.get(j);
-                ArrayList<StaticElement> staticElements = layer.getStaticElements();
-                int size = staticElements.size();
-                for( int i=0;i<size;i++) {
-                    StaticElement element = staticElements.get(i);
+            for (Layer layer : allLayers) {
+                for (var element : layer.getStaticElements()) {
                     if (viewPort.inView(element) && !element.isHidden()) {
                         g.drawImage(element.getImage(), element.getX() - viewPort.getX(), element.getY() - viewPort.getY(),
                                 element.getWidth(), element.getHeight(), gameFrame);
                     }
                 }
-                ArrayList<DynamicElement> dynamicElements = layer.getDynamicElements();
-                size = dynamicElements.size();
-                for (int i=0;i<size;i++) {
-                    DynamicElement element1 = dynamicElements.get(i);
-                    if (viewPort.inView(element1) && !element1.isHidden()) {
-                        g.drawImage(element1.getImage(), element1.getX() - viewPort.getX(), element1.getY() - viewPort.getY(),
-                                element1.getWidth(), element1.getHeight(), gameFrame);
+                for (var element : layer.getDynamicElements()) {
+                    if (viewPort.inView(element) && !element.isHidden()) {
+                        g.drawImage(element.getImage(), element.getX() - viewPort.getX(), element.getY() - viewPort.getY(),
+                                element.getWidth(), element.getHeight(), gameFrame);
                         // Logic code goes here
-                        if (element1.isLockedCharacter() || !editorMode)
-                            element1.move();
+                        if (element.isLockedCharacter() || !editorMode)
+                            element.move();
                     }
                 }
             }
@@ -118,6 +115,7 @@ public class GameEngine {
                 gameLogic.paint(g);
             }
         }
+        mutex.release();
     }
     protected void resize(Dimension dim) {
         viewPort.setWidth(dim.width);

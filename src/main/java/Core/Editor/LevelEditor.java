@@ -4,13 +4,16 @@ import Core.Objects.*;
 import Core.Render.*;
 import Core.Util.Loader;
 import Core.Util.Logic;
+import Core.Util.Semaphore;
 import Persistence.Config;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class LevelEditor extends GameEngine {
     private final static LevelEditor instance = new LevelEditor();
+
     protected LevelEditor(){}
 
     public static LevelEditor getInstance() {
@@ -26,6 +29,8 @@ public class LevelEditor extends GameEngine {
     private MapCreator creator;
 
     private DynamicElement lastAdded;
+
+    private Semaphore mutex = Semaphore.getMutex();
 
     public void init(MapLoader loader, Logic gameLogic, MapCreator creator) {
         this.loader = loader;
@@ -48,7 +53,7 @@ public class LevelEditor extends GameEngine {
         return loader;
     }
 
-    public void insertAt(String type, int x, int y, int state, int layerIndex) {
+    protected void insertAt(String type, int x, int y, int state, int layerIndex) {
         insertAt(type, x, y, state, spritesFrame.getSpeedX(), spritesFrame.getSpeedY(), layerIndex);
     }
     // static element insertion
@@ -58,8 +63,9 @@ public class LevelEditor extends GameEngine {
     }
 
     public void insertAt(String type, int x, int y, int state, int speedX, int speedY, int layerIndex) {
+        mutex.acquire();
         // ugly code, layers is redundant really !!
-        ArrayList<Layer> layers = this.layers.getALL_LAYERS();
+        java.util.List<Layer> layers = this.layers.getALL_LAYERS();
         if (layers.size() <= layerIndex) {
             layers.add(new Layer(new ArrayList<StaticElement>(), new ArrayList<DynamicElement>(), layerIndex));
         }
@@ -68,13 +74,14 @@ public class LevelEditor extends GameEngine {
         if (loader.isDynamic(type)) {
             DynamicElement element = new DynamicElement(x, y, d.width, d.height, speedX, speedY,
                     type);
-            layer.addDynamicElement(element);
             if (loader.isLocked(type)) {
                 element.setLockedCharacter();
                 ViewPort.getInstance().setLockedElement(element);
                 GameEngine.getInstance().getGameLogic().setLockedElement(element);
-                gameLogic.setLockedElement(element);
+                layer.addDynamicElement(element, 0); // TODO : funky logic depends on the order fix it and restore level editor sanity!
             }
+            else
+                layer.addDynamicElement(element);
             element.setImages(loader.getSprite(type));
             element.swapImage(state);
             lastAdded = element;
@@ -85,10 +92,12 @@ public class LevelEditor extends GameEngine {
             element.setImages(loader.getSprite(type));
             element.swapImage(state);
         }
+        mutex.release();
     }
     // dynamic element insertion
 
     public void attachManager(Class<? extends ElementManager> c) {
+        mutex.acquire();
         try {
             var manager = c.getConstructor(DynamicElement.class).newInstance(lastAdded);
             lastAdded.setManager(manager);
@@ -96,10 +105,12 @@ public class LevelEditor extends GameEngine {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        mutex.release();
     }
 
     public void removeElement(String type, int layerIndex) {
-        ArrayList<Layer> layers = Layers.getInstance().getALL_LAYERS();
+        mutex.acquire();
+        java.util.List<Layer> layers = Layers.getInstance().getALL_LAYERS();
         if (layers.size() > layerIndex && layerIndex >= 0) {
             Layer l = layers.get(layerIndex);
             for (StaticElement e : l.getStaticElements()) {
@@ -115,6 +126,64 @@ public class LevelEditor extends GameEngine {
                 }
             }
         }
+        mutex.release();
+    }
+
+    public void removeElement(StaticElement element) {
+        mutex.acquire();
+        for (var layer : layers.getALL_LAYERS()) {
+            if (element instanceof DynamicElement) {
+                layer.getDynamicElements().remove((DynamicElement) element);
+                if (((DynamicElement) element).getManager() != null)
+                    ((DynamicElement) element).getManager().kill();
+            }
+            else
+                layer.getStaticElements().remove(element);
+        }
+        mutex.release();
+    }
+
+    public Optional<DynamicElement> getDynamicElement(String type, int layerIndex, int index) { // TODO : integrate all these methods
+        if (layers.getALL_LAYERS().size() > layerIndex) {
+            var elements = layers.getALL_LAYERS().get(layerIndex).getDynamicElements();
+            if (elements.size() > index && index != -1) {
+                int current = 0;
+                for (var element : elements) {
+                    if (element.getType().equals(type))
+                        current++;
+                    if (current == index)
+                        return Optional.of(element);
+                }
+                return Optional.empty();
+            }
+            else if (elements.size() != 0) {
+                for (var element : elements)
+                    if (element.getType().equals(type))
+                        return Optional.of(element);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<StaticElement> getStaticElement(String type, int layerIndex, int index) {
+        if (layers.getALL_LAYERS().size() > layerIndex) {
+            var elements = layers.getALL_LAYERS().get(layerIndex).getStaticElements();
+            if (elements.size() > index && index != -1) {
+                int current = 0;
+                for (var element : elements) {
+                    if (element.getType().equals(type))
+                        current++;
+                    if (current == index)
+                        return Optional.of(element);
+                }
+                return Optional.empty();
+            }
+            else if (elements.size() > 0)
+                for (var element : elements)
+                    if (element.getType().equals(type))
+                        return Optional.of(element);
+        }
+        return Optional.empty();
     }
 
     public void setLoader(Loader loader) {

@@ -1,6 +1,7 @@
 package Core.Util;
 
 public class Semaphore {
+    private final static Semaphore mutex = new Semaphore(1);
     private final Object lock;
     private final int permits;
     private boolean forceLocked;
@@ -17,6 +18,7 @@ public class Semaphore {
     }
 
     public void acquire() {
+        /*System.out.println("acquire " + signals + " " + Thread.currentThread());
         synchronized (lock) {
             while (signals >= permits) {
                 try {
@@ -25,14 +27,15 @@ public class Semaphore {
                 }
             }
             signals++;
-        }
+        }*/
     }
 
     public void release() {
+        /*System.out.println("release " + signals + " " + Thread.currentThread());
         synchronized (lock) {
             signals--;
             lock.notify();
-        }
+        }*/
     }
 
     public void releaseAll() {
@@ -58,6 +61,10 @@ public class Semaphore {
             forceLocked = false;
             lock.notifyAll();
         }
+    }
+
+    public static Semaphore getMutex() {
+        return mutex;
     }
 }
 

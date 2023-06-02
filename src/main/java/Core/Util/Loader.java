@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class Loader {
 
@@ -27,6 +28,8 @@ public abstract class Loader {
     protected final HashMap<String, Dimension> dimensions = new HashMap<>();
 
     protected String[] TYPES;
+
+    protected String[] lockedElements = new String[0];
 
     public Loader(String pathToSprites, String pathToMaps) {
         PathToSprites = pathToSprites;
@@ -81,16 +84,14 @@ public abstract class Loader {
     public void loadMap(int ID, int level) {
         Map map = getMap(ID, level);
         if (map != null) {
-            ArrayList<Layer> layers = map.getLAYERS();
+            List<Layer> layers = map.getLAYERS();
             for (Layer layer : layers) {
-                ArrayList<StaticElement> elements = layer.getStaticElements();
-                for (StaticElement element : elements) {
+                for (StaticElement element : layer.getStaticElements()) {
                     element.setImages(getSprite(element.getType()));
                     element.setWidth(getDimension(element.getType()).width);
                     element.setHeight(getDimension(element.getType()).height);
                 }
-                ArrayList<DynamicElement> dynamicElements = layer.getDynamicElements();
-                for (DynamicElement de : dynamicElements) {
+                for (DynamicElement de : layer.getDynamicElements()) {
                     de.setImages(getSprite(de.getType()));
                     de.setWidth(getDimension(de.getType()).width);
                     de.setHeight(getDimension(de.getType()).height);
@@ -109,7 +110,12 @@ public abstract class Loader {
         return TYPES;
     }
 
-    public abstract boolean isLocked(String type);
+    public boolean isLocked(String type) {
+        for (String str : lockedElements)
+            if (str.equals(type))
+                return true;
+        return false;
+    }
 
     public Dimension getDimension(String type) {
         if (dimensions.containsKey(type)) {

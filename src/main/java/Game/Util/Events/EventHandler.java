@@ -4,9 +4,11 @@ import Core.Util.Semaphore;
 
 
 import java.util.Queue;
+import java.util.Set;
 
-public abstract class EventHandler extends Thread{
-    protected Semaphore semaphore = new Semaphore(0);
+public abstract class EventHandler implements Runnable{
+
+    /*protected Semaphore semaphore = new Semaphore(0);
     private boolean killed;
     private final EventQueue queue = EventQueue.getInstance();
     protected abstract void register(Queue<Event> queue);
@@ -23,5 +25,11 @@ public abstract class EventHandler extends Thread{
 
     public void kill() {
         killed = true;
+    }*/
+
+    protected final Event event;
+
+    public EventHandler(Event event) {
+        this.event = event;
     }
 }
