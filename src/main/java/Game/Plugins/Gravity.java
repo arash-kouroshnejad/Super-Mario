@@ -24,9 +24,9 @@ public class Gravity extends Thread{ // TODO : make it abstract and move it to e
             if (paused)
                 semaphore.forceLock();
             try {
-                int size = elements.size();
                 for (DynamicElement element : elements) {
-                    if (!element.isHidden() && !(element.getType().equals("Plant") || element.getType().equals("Bullet")))
+                    if (!element.isHidden() && !(element.getType().equals("Plant") || element.getType().equals("Bullet")
+                            || element.getType().equals("Bird")))
                         element.setSpeedY(element.getSpeedY() + 1);
                 }
                 Thread.sleep(100);

@@ -59,4 +59,8 @@ public class ElementManager extends Thread{
     public void setAnimation(Runnable animation) {
         this.animation = animation;
     }
+
+    public boolean isPaused() {
+        return paused;
+    }
 }

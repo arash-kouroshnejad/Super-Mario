@@ -87,7 +87,7 @@ public class StaticElement {
     public boolean collidesHorizontally(StaticElement element) {
         Bounds bounds = element.getBounds();
         Bounds bounds1 = getBounds();
-        return !(Math.abs(bounds.TOP - bounds1.BOTTOM)  < 10 || Math.abs(bounds.BOTTOM - bounds1.TOP) < 10);
+        return !(Math.abs(bounds.TOP - bounds1.BOTTOM)  < 11 || Math.abs(bounds.BOTTOM - bounds1.TOP) < 11);
         // return element.getBounds().LEFT >= getBounds().RIGHT || element.getBounds().RIGHT <= getBounds().LEFT;
     }
 

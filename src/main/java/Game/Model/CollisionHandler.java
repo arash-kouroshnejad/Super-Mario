@@ -1,4 +1,4 @@
-package Game.Plugins;
+package Game.Model;
 
 public class CollisionHandler {
 

@@ -65,6 +65,9 @@ public class ElementFactory extends EventHandler{
             }
             case "Brick" -> editor.staticInsert("Brick", point.x, point.y, 0, staticLayer);
             case "FilledBlock" -> editor.staticInsert("FilledBlock", point.x, point.y, 0, staticLayer);
+            case "Bomb" -> {
+                editor.insertAt("Bomb", point.x, point.y + 40, 0, 0, 0, layerIndex);
+            }
         }
     }
     private static class RandomItemGenerator {
