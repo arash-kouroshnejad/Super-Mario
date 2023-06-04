@@ -110,22 +110,8 @@ public class LevelEditor extends GameEngine {
 
     public void removeElement(String type, int layerIndex) {
         mutex.acquire();
-        java.util.List<Layer> layers = Layers.getInstance().getALL_LAYERS();
-        if (layers.size() > layerIndex && layerIndex >= 0) {
-            Layer l = layers.get(layerIndex);
-            for (StaticElement e : l.getStaticElements()) {
-                if (e.getType().equals(type)) {
-                    l.getStaticElements().remove(e);
-                    return;
-                }
-            }
-            for (DynamicElement e : l.getDynamicElements()) {
-                if (e.getType().equals(type)) {
-                    l.getDynamicElements().remove(e);
-                    return;
-                }
-            }
-        }
+        getDynamicElement(type, layerIndex, 0).ifPresent(this::removeElement);
+        getStaticElement(type, layerIndex, 0).ifPresent(this::removeElement);
         mutex.release();
     }
 
@@ -147,7 +133,7 @@ public class LevelEditor extends GameEngine {
         if (layers.getALL_LAYERS().size() > layerIndex) {
             var elements = layers.getALL_LAYERS().get(layerIndex).getDynamicElements();
             if (elements.size() > index && index != -1) {
-                int current = 0;
+                int current = -1;
                 for (var element : elements) {
                     if (element.getType().equals(type))
                         current++;
@@ -169,7 +155,7 @@ public class LevelEditor extends GameEngine {
         if (layers.getALL_LAYERS().size() > layerIndex) {
             var elements = layers.getALL_LAYERS().get(layerIndex).getStaticElements();
             if (elements.size() > index && index != -1) {
-                int current = 0;
+                int current = -1;
                 for (var element : elements) {
                     if (element.getType().equals(type))
                         current++;

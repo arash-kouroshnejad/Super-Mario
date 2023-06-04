@@ -102,4 +102,12 @@ public class StaticElement {
     public String getType() {
         return type;
     }
+
+    public Dimension getDimensions() {
+        return new Dimension(width, height);
+    }
+
+    public Point getPosition() {
+        return new Point(x, y);
+    }
 }

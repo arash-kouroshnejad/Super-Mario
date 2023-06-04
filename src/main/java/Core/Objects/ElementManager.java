@@ -2,9 +2,10 @@ package Core.Objects;
 
 import Core.Util.Semaphore;
 
-public abstract class ElementManager extends Thread{
+public class ElementManager extends Thread{
 
     protected final DynamicElement element;
+
     protected Runnable animation;
 
     private final Semaphore semaphore = new Semaphore(0);

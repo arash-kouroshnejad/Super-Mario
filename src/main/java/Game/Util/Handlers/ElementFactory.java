@@ -3,9 +3,7 @@ package Game.Util.Handlers;
 import Core.Editor.LevelEditor;
 import Core.Render.ViewPort;
 import Game.Model.Mario;
-import Game.Plugins.ElementManagers.ItemManager;
-import Game.Plugins.ElementManagers.MarioThread;
-import Game.Plugins.ElementManagers.ShieldThread;
+import Game.Plugins.ElementManagers.*;
 import Game.Util.Events.Event;
 import Game.Util.Events.EventHandler;
 import Persistence.Config;
@@ -14,6 +12,11 @@ import java.awt.*;
 
 
 public class ElementFactory extends EventHandler{
+
+    static int layerIndex = Config.getInstance().getProperty("DynamicsLayer",
+            Integer.class);
+    static int staticLayer = Config.getInstance().getProperty("StaticsLayer", Integer.class);
+
     private final RandomItemGenerator rIg = new RandomItemGenerator();
 
     public ElementFactory(Event event) {
@@ -25,58 +28,45 @@ public class ElementFactory extends EventHandler{
         String[] rawCoordinates = event.attribute().split(",")[0].split("x");
         Point point = new Point(Integer.parseInt(rawCoordinates[0]), Integer.parseInt(rawCoordinates[1]));
         var editor = LevelEditor.getInstance();
-        int layerIndex = Config.getInstance().getProperty("DynamicsLayer",
-                Integer.class);
-        if (command.equals("Item")) {
-            // editor.insertAt(rIg.getRandomItem(), point.x, point.y, 0, 0, 0, layerIndex);
-            editor.insertAt("Star", point.x, point.y, 0, 0, 0, layerIndex);
-            editor.attachManager(ItemManager.class);
-        } else if (command.split("-")[0].equals("Mario")){
-            var manager = ViewPort.getInstance().getLockedElement().getManager();
-            if (manager != null)
-                manager.kill();
-            /*int lastState = Integer.parseInt(elementType.split("-")[1].split("/")[0]);
-            switch (Mario.getInstance().getMarioState(lastState)) {
-                case MiniMario -> editor.removeElement(editor.getDynamicElement("MiniMario",
-                        layerIndex, -1).orElseThrow());
-                case MegaMario -> editor.removeElement(editor.getDynamicElement("MegaMario",
-                        layerIndex, -1).orElseThrow());
-                case FireMario -> editor.removeElement(editor.getDynamicElement("FireMario",
-                        layerIndex, -1).orElseThrow());
-            }*/
-            editor.removeElement(ViewPort.getInstance().getLockedElement());
-            int newState = Integer.parseInt(command.split("-")[1].split("/")[1]);
-            switch (Mario.getInstance().getMarioState(newState)) {
-                case MiniMario -> editor.insertAt("MiniMario", point.x, point.y, 0, 0,
-                        0, layerIndex);
-                case MegaMario -> editor.insertAt("MegaMario", point.x, point.y, 0, 0,
-                        0, layerIndex);
-                case FireMario -> editor.insertAt("FireMario", point.x, point.y, 0, 0,
-                        0, layerIndex);
+        switch (command) {
+            case "Item" -> {
+                // editor.insertAt(rIg.getRandomItem(), point.x, point.y, 0, 0, 0, layerIndex);
+                editor.insertAt("Star", point.x, point.y, 0, 0, 0, layerIndex);
+                editor.attachManager(ItemManager.class);
             }
-            editor.attachManager(MarioThread.class);
-        } else if (command.equals("GenerateShield")) {
-            // editor.insertAt("GoldenRing", point.x, point.y, 0, 0, 0, 3);
-            // editor.attachManager(ShieldThread.class);
-        } else if (command.equals("RemoveShield")) {
-            // editor.removeElement("GolderRing", 3);
+            case "MiniMario", "MegaMario", "FireMario" -> {
+                editor.removeElement(ViewPort.getInstance().getLockedElement());
+                editor.insertAt(command, point.x, point.y, 0, 0, 0, layerIndex);
+                editor.attachManager(MarioThread.class);
+            }
+            case "GenerateShield" -> {
+                // editor.staticInsert("GoldenRing", point.x, point.y, 0,0);
+                editor.insertAt("GoldenRing", point.x, point.y, 0, 0, 0, layerIndex);
+                editor.attachManager(ShieldThread.class);
+            }
+            case "RemoveShield" -> editor.removeElement("GoldenRing", layerIndex);
+            case "Bullet" -> {
+                var mario = ViewPort.getInstance().getLockedElement();
+                boolean mirrored = mario.getManager().isMirrored();
+                Point deploy = new Point((mirrored) ? mario.getX() - 10 : mario.getX() + 60, mario.getY() +
+                        mario.getHeight() / 2 - 20);
+                editor.insertAt("Bullet", deploy.x, deploy.y, (mirrored) ? 1 : 0, (mirrored) ? -2 : 2, 0,
+                        layerIndex);
+                editor.attachManager(BulletThread.class);
+            }
+            case "Sword" -> {
+                var coordinates = ViewPort.getInstance().getLockedElement().getPosition();
+                editor.insertAt("PipeSword", coordinates.x, coordinates.y, 0, 0, 0, layerIndex);
+                editor.attachManager(SwordThread.class);
+            }
+            case "Coin" -> {
+                editor.insertAt("Coin", point.x, point.y - 40, 0, 0, 0, layerIndex);
+                editor.attachManager(CoinThread.class);
+            }
+            case "Brick" -> editor.staticInsert("Brick", point.x, point.y, 0, staticLayer);
+            case "FilledBlock" -> editor.staticInsert("FilledBlock", point.x, point.y, 0, staticLayer);
         }
     }
-    /*protected void register(Queue<Event> queue) {
-        for (var event : queue) {
-            if (event.type().equals(EventType.PowerUpTriggered)) {
-                String[] coordinates = event.attribute().split("x");
-                Point point = new Point(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
-                var editor = LevelEditor.getInstance();
-                int layerIndex = Config.getInstance().getProperty("DynamicsLayer",
-                        Integer.class);
-                editor.insertAt(rIg.getRandomItem(), point.x, point.y, 0, 0, 0, layerIndex);
-                editor.attachManager(ItemManager.class);
-                EventQueue.getInstance().consume(event);
-            }
-        }
-        semaphore.forceLock();
-    }*/
     private static class RandomItemGenerator {
         public String getRandomItem() {
             int rand = (int) (Math.random() * 3);

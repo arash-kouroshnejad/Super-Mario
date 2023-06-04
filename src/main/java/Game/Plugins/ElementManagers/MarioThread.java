@@ -18,6 +18,7 @@ public class MarioThread extends ElementManager {
             defaultStates.put(mode + "Mirrored", config.getProperty(mode + "MirroredDefault", Integer.class));
         }
     }
+
     public void resetState() {
         element.swapImage(defaultStates.get(element.getType() + ((mirrored) ? "Mirrored" : "")));
     }
@@ -40,7 +41,12 @@ public class MarioThread extends ElementManager {
         private int index;
         public Sprint (DynamicElement element) {
             this.element = element;
-            String[] sprintIndexes = c.getProperty(element.getType() + "SprintIndexes").split(",");
+            String[] sprintIndexes = new String[0];
+            try {
+                sprintIndexes = c.getProperty(element.getType() + "SprintIndexes").split(",");
+            } catch (Exception e) {
+                System.out.println("Error in reading sprint indexes for : " + element.getType() + "SprintIndexes");
+            }
             String[] mirroredSprintIndexes = c.getProperty(element.getType() + "MirroredSprintIndexes").split(",");
             this.sprintIndexes = new int[sprintIndexes.length];
             this.mirroredSprintIndexes = new int[mirroredSprintIndexes.length];

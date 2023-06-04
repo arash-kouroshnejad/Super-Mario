@@ -5,5 +5,5 @@ public enum EventType {
     MouseClicked,
     ModalOptionClicked,
     KeyToggled,
-    PowerUpTriggered,
+    GenerateElement,
 }

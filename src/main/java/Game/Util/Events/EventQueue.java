@@ -15,7 +15,7 @@ public class EventQueue {
     private EventQueue(){}
 
 
-    private final ExecutorService pool = Executors.newFixedThreadPool(10);
+    private final ExecutorService pool = Executors.newFixedThreadPool(1); // TODO : fix level editor and revert to multi threaded handling
 
     private final Queue<Event> queue = new ConcurrentLinkedQueue<>();
 
@@ -28,7 +28,7 @@ public class EventQueue {
         switch (event.type()) {
             case KeyToggled -> pool.submit(new KeyToggled(event));
             case ModalTriggered -> pool.submit(new ModalTriggered(event));
-            case PowerUpTriggered -> pool.submit(new ElementFactory(event));
+            case GenerateElement -> pool.submit(new ElementFactory(event));
             case MouseClicked -> pool.submit(new MouseClicked(event));
             case ModalOptionClicked -> pool.submit(new ModalOptionSelected(event));
         }

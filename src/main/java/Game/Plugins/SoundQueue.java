@@ -18,7 +18,7 @@ public class SoundQueue {
     private Clip clip;
     private final Listener listener = new Listener();
     private final Semaphore semaphore = new Semaphore(0);
-    private boolean muted = true;
+    private boolean muted;
     private boolean paused;
 
     private SoundQueue() {
@@ -63,7 +63,7 @@ public class SoundQueue {
                 }
                 else {
                     clip.addLineListener(listener);
-                    semaphore.forceLock();
+                    // semaphore.forceLock();
                 }
             } catch (Exception ignored) {}
         }
@@ -98,8 +98,8 @@ public class SoundQueue {
     private class Listener implements LineListener{
         @Override
         public void update(LineEvent event) {
-            if (event.getType() == LineEvent.Type.STOP)
-                    semaphore.forceRelease();
+            if (event.getType() == LineEvent.Type.STOP) {}
+                    // semaphore.forceRelease();
         }
     }
 }

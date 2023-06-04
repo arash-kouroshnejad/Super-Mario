@@ -15,8 +15,8 @@ public class ItemManager extends ElementManager {
         @Override
             public void run() {
                 try {
-                    element.setSpeedY(2 * UP);
-                    Thread.sleep(400);
+                    element.setSpeedY(UP);
+                    Thread.sleep(5000);
                     element.setSpeedY(0);
                     if (!element.getType().equals("Flower")) {
                         Thread.sleep(3000);
@@ -27,7 +27,8 @@ public class ItemManager extends ElementManager {
                                     element.setY(element.getY() - 5);
                                     element.setSpeedY(UP);
                                     sleep(3000);
-                                }
+                                } else
+                                    Thread.sleep(100);
                             }
                         }
                     }
