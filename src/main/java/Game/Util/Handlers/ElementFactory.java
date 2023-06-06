@@ -2,8 +2,8 @@ package Game.Util.Handlers;
 
 import Core.Editor.LevelEditor;
 import Core.Render.ViewPort;
-import Game.Model.Mario;
-import Game.Plugins.ElementManagers.*;
+import Game.Animations.*;
+import Game.Plugins.Bar;
 import Game.Util.Events.Event;
 import Game.Util.Events.EventHandler;
 import Persistence.Config;
@@ -32,7 +32,7 @@ public class ElementFactory extends EventHandler{
             case "Item" -> {
                 // editor.insertAt(rIg.getRandomItem(), point.x, point.y, 0, 0, 0, layerIndex);
                 editor.insertAt("Star", point.x, point.y, 0, 0, 0, layerIndex);
-                editor.attachManager(ItemManager.class);
+                editor.attachManager(ItemsThread.class);
             }
             case "MiniMario", "MegaMario", "FireMario" -> {
                 editor.removeElement(ViewPort.getInstance().getLockedElement());
@@ -65,8 +65,16 @@ public class ElementFactory extends EventHandler{
             }
             case "Brick" -> editor.staticInsert("Brick", point.x, point.y, 0, staticLayer);
             case "FilledBlock" -> editor.staticInsert("FilledBlock", point.x, point.y, 0, staticLayer);
-            case "Bomb" -> {
-                editor.insertAt("Bomb", point.x, point.y + 40, 0, 0, 0, layerIndex);
+            case "Bomb" -> editor.insertAt("Bomb", point.x, point.y + 40, 0, 0, 0, layerIndex);
+            case "FireBall" -> {
+                var bowser = editor.getDynamicElement("Bowser", layerIndex, 0).orElseThrow();
+                boolean mirrored = bowser.getManager().isMirrored();
+                Point deploy = new Point(mirrored ? point.x - 40 : bowser.getBounds().RIGHT + 20, point.y);
+                editor.insertAt("FireBall", deploy.x, deploy.y, 0, mirrored ? -2 : 2, 0, layerIndex);
+            }
+            case "HPBar" -> {
+                var bar = Bar.getBar("Bowser, the King Of koopa");
+                bar.setPercentage(100);
             }
         }
     }

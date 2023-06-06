@@ -39,6 +39,10 @@ public class GameLoader extends SpriteLoader {
                     StandardCopyOption.REPLACE_EXISTING);
             Files.copy(java.nio.file.Path.of(defaultMaps + "1.map"), java.nio.file.Path.of(PathToMaps + ID + "/1.map"),
                     StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(java.nio.file.Path.of(defaultMaps + "2.map"), java.nio.file.Path.of(PathToMaps + ID + "/2.map"),
+                    StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(java.nio.file.Path.of(defaultMaps + "3.map"), java.nio.file.Path.of(PathToMaps + ID + "/3.map"),
+                    StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception ignored) {}
         return game;
     }

@@ -2,9 +2,7 @@ package Control;
 
 import Core.Editor.LevelEditor;
 import Core.Render.GameEngine;
-import Game.Plugins.ElementManagers.ItemManager;
-import Game.Util.Events.EventQueue;
-import Game.Util.Handlers.*;
+import Core.Render.Routine;
 import Game.Util.Loaders.GameLoader;
 import Game.MarioLogic;
 import Game.Model.GameStat;
@@ -29,6 +27,7 @@ public class GameManager {
     private final GameEngine engine = GameEngine.getInstance();
     private GameLoader assetLoader;
     private GameStat currentGame;
+    private Routine gameLoop;
     private GameManager() {}
     public void showWelcome() {
         WelcomeController welcomeController = new WelcomeController();
@@ -45,6 +44,9 @@ public class GameManager {
     public void showMenu() {
         MainMenuController mainMenuController = new MainMenuController();
         mainMenuController.show();
+        if (gameLoop != null) {
+            gameLoop.kill();
+        }
     }
     public int getCoins() {
         return accountManager.getCurrentUser().getCoins();
@@ -93,11 +95,13 @@ public class GameManager {
     }
     private void setUpFrame(MarioLogic logic, GameLoader loader, int ID) {
         assetLoader.loadGame(ID);
+        assetLoader.loadMap(ID, 3);
         gameLogic.getModalTypes();
-        gameLogic.init(loader);
         startHandlers();
         LevelEditor.getInstance().setLoader(loader);
         engine.init(logic);
+        gameLogic.init(loader);
+        // gameLoop = new LogicLoop(150);
         engine.startGame();
     }
     private void startHandlers() { // TODO : move this method to where it belongs !

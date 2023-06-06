@@ -67,7 +67,8 @@ public class LevelEditor extends GameEngine {
         // ugly code, layers is redundant really !!
         java.util.List<Layer> layers = this.layers.getALL_LAYERS();
         if (layers.size() <= layerIndex) {
-            layers.add(new Layer(new ArrayList<StaticElement>(), new ArrayList<DynamicElement>(), layerIndex));
+            for (int i = layers.size(); i < layerIndex + 1; i++)
+                layers.add(i, new Layer(new ArrayList<>(), new ArrayList<>(), layerIndex));
         }
         Layer layer = layers.get(layerIndex);
         Dimension d = loader.getDimension(type);

@@ -49,15 +49,11 @@ public class GameEngine {
 
     private boolean customPainting;
 
-    /*public void setGraphics(Graphics graphics) {
-        this.graphics = graphics;
-    }*/
-
     public void init(Logic gameLogic) {
         this.gameLogic = gameLogic;
         gameFrame = new GameFrame();
         viewPort.setFrame(gameFrame);
-        animationAgent = new Animation(150);
+        animationAgent = new Animation(80);
         animationAgent.start();
     }
 
@@ -117,10 +113,12 @@ public class GameEngine {
         }
         mutex.release();
     }
+
     protected void resize(Dimension dim) {
         viewPort.setWidth(dim.width);
         viewPort.setHeight(dim.height);
     }
+
     public void enableCustomPainting() {
         customPainting = true;
     }

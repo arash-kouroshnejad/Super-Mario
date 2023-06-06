@@ -81,4 +81,8 @@ public class ViewPort {
     public void setHeight(int height) {
         this.height = height;
     }
+
+    public Dimension getDimension() {
+        return new Dimension(width, height);
+    }
 }

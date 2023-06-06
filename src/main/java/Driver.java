@@ -5,6 +5,7 @@ import Game.MarioLogic;
 import Game.Util.Loaders.Creator;
 import Persistence.*;
 
+
 public class Driver {
     public static void main(String[] args) {
         Config.getInstance().setPath(args[0]);
