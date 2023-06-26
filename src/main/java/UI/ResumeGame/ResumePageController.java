@@ -23,9 +23,9 @@ public class ResumePageController extends FrameController {
     public void select(String selection) {
         frame.setVisible(false);
         switch (selection) {
-            case "game0" -> GameManager.getInstance().resumeGame(0);
-            case "game1" -> GameManager.getInstance().resumeGame(1);
-            case "game2" -> GameManager.getInstance().resumeGame(2);
+            case "game0" -> GameManager.getInstance().reloadGame(0);
+            case "game1" -> GameManager.getInstance().reloadGame(1);
+            case "game2" -> GameManager.getInstance().reloadGame(2);
             case "ExitButton" -> GameManager.getInstance().showMenu();
         }
     }

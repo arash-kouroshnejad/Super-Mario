@@ -7,12 +7,14 @@ import Core.Render.GameEngine;
 import Core.Render.ViewPort;
 import Core.Util.Loader;
 import Core.Util.Logic;
+import Core.Util.Routine;
 import Game.Animations.*;
 import Game.Model.CoinFilledBlocks;
 import Game.Model.GameStat;
 import Game.Model.Mario;
 import Game.Model.Shield;
 import Game.Plugins.Bar;
+import Game.Plugins.Correction;
 import Game.Plugins.Gravity;
 import Game.Plugins.SoundQueue;
 import Game.Util.Events.Event;
@@ -21,9 +23,7 @@ import Game.Util.Events.EventType;
 import Persistence.Config;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 
 
@@ -50,10 +50,13 @@ public class MarioLogic extends Logic {
     private int checkPointsSaved;
     private int jumpLimit = 160;
     private int jumpSpeed = 6 * UP;
-    private int verticalSpeedLimit = 5;
+    private int verticalSpeedLimit = 10;
     private int horizontalSpeedLimit = 5;
     private boolean onSlime;
+
     private DynamicElement star;
+
+    private Routine correction;
 
     public void init(Loader loader) {
         soundSystem.init(this);
@@ -120,22 +123,24 @@ public class MarioLogic extends Logic {
                     bt.start();
                     animations.add(bt);
                 }
-                /*case "Bowser" -> {
-                    BowserThread bt = new BowserThread(de);
+                case "Bowser" -> {
+                    /*BowserThread bt = new BowserThread(de);
                     de.setManager(bt);
+                    BowserLogic.getInstance().init();
                     bt.start();
-                    animations.add(bt);
-                }*/
+                    animations.add(bt);*/
+                }
             }
-            EventQueue.getInstance().publish(new Event(EventType.GenerateElement, "0x0,HPBar"));
         }
+        EventQueue.getInstance().publish(new Event(EventType.GenerateElement, "0x0,HPBar"));
         dropPowerUp();
         shield.deactivate();
         timeElapsed = currentGame.getTimeElapsed();
         GameEngine.getInstance().enableCustomPainting();
         mid = ViewPort.getInstance().getWidth() / 2;
         activatedBlocks.clear();
-
+        correction = new Correction();
+        correction.start();
     } // TODO : clean and segregate this method !
 
     @Override
@@ -175,6 +180,8 @@ public class MarioLogic extends Logic {
         animations.clear();
         gThread.remove();
         gThread = new Gravity();
+        Bar.resetAllBars();
+        correction.kill();
         GameManager.getInstance().resetGame();
         // setLockedElement(ViewPort.getInstance().getLockedElement());
         timeElapsed = 0;
@@ -291,10 +298,8 @@ public class MarioLogic extends Logic {
             EventQueue.getInstance().publish(new Event(EventType.GenerateElement, "0x0,RemoveShield"));*/
         inTouch[0] = false;
         saveReady = false;
-        ArrayList<DynamicElement> cloned = new ArrayList<>(dynamics);
         int index = 0;
-        int size = cloned.size();
-        for (var element : cloned) {
+        for (var element : dynamics) {
             // gravity
             if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) { // TODO : read the bottom bound from config
                 element.setHidden(true);
@@ -354,7 +359,7 @@ public class MarioLogic extends Logic {
                                 }
                                 else {
                                     // vertical collision
-                                    if (Math.abs(element.getBounds().TOP - element1.getBounds().BOTTOM) < 10) {
+                                    if (element.beneath(element1)) {
                                         element.setSpeedY(Math.max(0, element.getSpeedY())); // gonna run this twice ,but it won't be an issue
                                         switch (element1.getType()) {
                                             case "PowerUpBlock":
@@ -435,27 +440,11 @@ public class MarioLogic extends Logic {
                 }
             }
             // collision with dynamics
-            for (int j = index + 1; j < size; j++) {
-                DynamicElement element1 = cloned.get(j);
+            for (var iter = dynamics.listIterator(index); iter.hasNext(); ) {
+                DynamicElement element1 = iter.next();
                 if (element.collidesWith(element1)) {
                     // mario
                     if (element.isLockedCharacter()) {
-                        if (element1.getType().equals("Star")) {
-                            if (element1.isHidden()) {
-                                System.out.println("hidden");
-                            }
-                            else {
-                                System.out.println(star == element1);
-                                if (star != null)
-                                    System.out.println(star.isHidden() + " " + element1.isHidden()); // TODO : bs bug:(
-                                star = element1;
-                                earnPowerUp();
-                                shield.activate(15);
-                                currentGame.setScore(currentGame.getScore() + 40);
-                                star.setHidden(true);
-                                removalQueue.add(star);
-                            }
-                        }
                         if (!element1.isHidden()) {
                             switch (element1.getType()) {
                                 case "Coin":
@@ -464,13 +453,13 @@ public class MarioLogic extends Logic {
                                     element1.setHidden(true);
                                     removalQueue.add(element1);
                                     break;
-                                    /*case "Star":
+                                case "Star":
                                     earnPowerUp();
                                     shield.activate(15);
                                     currentGame.setScore(currentGame.getScore() + 40);
                                     element1.setHidden(true);
                                     removalQueue.add(element1);
-                                    break;*/
+                                    break;
                                 case "Plant":
                                     if (!element1.isHidden()) {
                                         takeDamage();
@@ -567,18 +556,19 @@ public class MarioLogic extends Logic {
                     }
                 }
             }
-            // PowerUp removal
-            if (!ViewPort.getInstance().inView(element)) {
-                if (element.getType().equals("Star") || element.getType().equals("Mushroom"))
-                    removalQueue.add(element);
-            }
             index++;
+            // PowerUp removal
+            if (!ViewPort.getInstance().inView(element) && element.getType().equals("Star") ||
+                    element.getType().equals("Mushroom"))
+                removalQueue.add(element);
         }
         for (var element : removalQueue)
             LevelEditor.getInstance().removeElement(element);
         removalQueue.clear(); // TODO : get rid of the set hidden function call
         /*if (soundSystem.isPaused())
             soundSystem.play("Background", true, true);*/
+        for (var element : dynamics)
+            element.move(); // TODO : disable movements in editor mode
     }
 
     @Override
@@ -595,7 +585,8 @@ public class MarioLogic extends Logic {
             g.drawString("HIT X TO ENTER THE SAVE MENU", mid - 100, 200);
         /*if (shield.isActive())
             g.drawString("Shield", Bar.getBar("Shield").getTilePosition().x, Bar.getBar("Shield").getTilePosition().y);*/
-        g.drawString("HPBar", Bar.getBar("HPBar").getTilePosition().x, Bar.getBar("HPBar").getTilePosition().y);
+        g.drawString("Bowser, the King Of koopa", Bar.getBar("HPBar").getTilePosition().x,
+                Bar.getBar("HPBar").getTilePosition().y);
     }
 
     @Override
@@ -678,6 +669,7 @@ public class MarioLogic extends Logic {
         LevelEditor.getInstance().removeElement("CheckPoint", 2);
         currentGame.setCoinsEarned((int) (currentGame.getCoinsEarned() + 0.25 * calculateRisk()));
     }
+
     public SoundQueue getSoundSystem() {
         return soundSystem;
     }

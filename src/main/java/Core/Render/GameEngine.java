@@ -75,21 +75,23 @@ public class GameEngine {
 
     public void pauseAnimation() {
         animationAgent.pause();
-        gameLogic.stop();
     }
 
     public void resumeAnimation() {
         animationAgent.restart();
-        gameLogic.resume();
     }
 
     public void paint(Graphics g) {
         mutex.acquire();
         java.util.List<Layer> allLayers = layers.getALL_LAYERS();
         if (allLayers != null) {
-            if (started) {
+            /*if (started) {
+                long time = System.nanoTime();
                 gameLogic.check();
-            }
+                long delta = System.nanoTime() - time;
+                if (delta > 500000)
+                    System.out.println(delta);
+            }*/
             for (Layer layer : allLayers) {
                 for (var element : layer.getStaticElements()) {
                     if (viewPort.inView(element) && !element.isHidden()) {
@@ -102,8 +104,8 @@ public class GameEngine {
                         g.drawImage(element.getImage(), element.getX() - viewPort.getX(), element.getY() - viewPort.getY(),
                                 element.getWidth(), element.getHeight(), gameFrame);
                         // Logic code goes here
-                        if (element.isLockedCharacter() || !editorMode)
-                            element.move();
+                        /*if (element.isLockedCharacter() || !editorMode)
+                            element.move();*/
                     }
                 }
             }

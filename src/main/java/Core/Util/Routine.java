@@ -1,15 +1,15 @@
-package Core.Render;
+package Core.Util;
 
 import Core.Util.Semaphore;
 
 public class Routine extends Thread{
-    private final int FPS;
+    private final double FPS;
     private boolean killed;
     private final Semaphore semaphore = new Semaphore(0);
     private boolean paused;
     private final Runnable task;
 
-    public Routine(int FPS, Runnable task) {
+    public Routine(double FPS, Runnable task) {
         this.FPS = FPS;
         this.task = task;
     }
@@ -21,10 +21,10 @@ public class Routine extends Thread{
             if (paused) {
                 semaphore.forceLock();
             }
-            if (System.nanoTime() - currentTime >= (double) 1000000 / FPS ) {
+            if (System.nanoTime() - currentTime >= (long) 1000000 / FPS ) {
                 currentTime = System.nanoTime();
                 task.run();
-                sleepTime =  (long) ((1000 / ((double) FPS)) -  (System.nanoTime() - currentTime) / 1000000);
+                sleepTime =  (long) ((1000 / FPS) -  (System.nanoTime() - currentTime) / 1000000);
                 try {
                     sleep(Math.max(sleepTime, 0));
                 } catch (InterruptedException e) {

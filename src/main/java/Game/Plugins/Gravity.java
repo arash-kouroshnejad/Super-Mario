@@ -3,8 +3,9 @@ package Game.Plugins;
 import Core.Objects.DynamicElement;
 import Core.Util.Semaphore;
 
-import java.util.ArrayList;
+
 import java.util.List;
+
 
 public class Gravity extends Thread{ // TODO : make it abstract and move it to engine
     private List<DynamicElement> elements;

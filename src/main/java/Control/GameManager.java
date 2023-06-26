@@ -2,7 +2,7 @@ package Control;
 
 import Core.Editor.LevelEditor;
 import Core.Render.GameEngine;
-import Core.Render.Routine;
+import Core.Util.Routine;
 import Game.Util.Loaders.GameLoader;
 import Game.MarioLogic;
 import Game.Model.GameStat;
@@ -16,7 +16,6 @@ import UI.Register.RegisterController;
 import UI.ResumeGame.ResumePageController;
 import UI.Store.StoreController;
 import UI.Welcome.WelcomeController;
-
 
 
 public class GameManager {
@@ -85,7 +84,7 @@ public class GameManager {
         usr.setCoins(usr.getCoins() + currentGame.getCoinsEarned());
         usr.setHighestScore(Math.max(usr.getHighestScore(), currentGame.getScore()));
     }
-    public void resumeGame(int ID) {
+    public void reloadGame(int ID) {
         gameLogic = new MarioLogic();
         assetLoader = new GameLoader();
         currentGame = assetLoader.getGame(ID);
@@ -93,15 +92,27 @@ public class GameManager {
             setUpFrame(gameLogic, assetLoader, ID);
         }
     }
+
+    public void pause() {
+        GameEngine.getInstance().pauseAnimation();
+        gameLoop.pause();
+        gameLogic.stop();
+    }
+     public void resume() {
+        GameEngine.getInstance().resumeAnimation();
+        gameLogic.resume();
+        gameLoop.restart();
+     }
     private void setUpFrame(MarioLogic logic, GameLoader loader, int ID) {
         assetLoader.loadGame(ID);
-        assetLoader.loadMap(ID, 3);
+        // assetLoader.loadMap(ID, 3);
         gameLogic.getModalTypes();
         startHandlers();
         LevelEditor.getInstance().setLoader(loader);
         engine.init(logic);
         gameLogic.init(loader);
-        // gameLoop = new LogicLoop(150);
+        gameLoop = new LogicLoop(100);
+        gameLoop.start();
         engine.startGame();
     }
     private void startHandlers() { // TODO : move this method to where it belongs !

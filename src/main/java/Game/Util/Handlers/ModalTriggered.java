@@ -30,10 +30,11 @@ public class ModalTriggered extends EventHandler {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            GameEngine.getInstance().pauseAnimation();
+            GameManager.getInstance().pause();
+
         } else {
             modal.removeModal();
-            GameEngine.getInstance().resumeAnimation();
+            GameManager.getInstance().resume();
         }
     }
 

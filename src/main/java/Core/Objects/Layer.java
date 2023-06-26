@@ -1,7 +1,9 @@
 package Core.Objects;
 
+
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 
 public class Layer {
     private final int index;

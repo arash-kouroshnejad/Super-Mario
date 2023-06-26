@@ -99,6 +99,10 @@ public class StaticElement {
         return false;
     }
 
+    public boolean beneath(StaticElement element) {
+        return Math.abs(getBounds().TOP - element.getBounds().BOTTOM) < 10;
+    }
+
     public String getType() {
         return type;
     }

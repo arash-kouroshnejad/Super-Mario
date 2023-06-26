@@ -17,7 +17,7 @@ public class Closing extends AbstractAnimation {
     @Override
     public void run() {
         if (!moving) {
-            boolean toRight = element.getX() > ViewPort.getInstance().getLockedElement().getX();
+            boolean toRight = element.getX() < ViewPort.getInstance().getLockedElement().getX();
             element.getManager().setMirrored(!toRight);
             Sprint.setMirrored(element, !toRight);
             element.setSpeedX(toRight ? 2 : -2);

@@ -73,7 +73,7 @@ public class ElementFactory extends EventHandler{
                 editor.insertAt("FireBall", deploy.x, deploy.y, 0, mirrored ? -2 : 2, 0, layerIndex);
             }
             case "HPBar" -> {
-                var bar = Bar.getBar("Bowser, the King Of koopa");
+                var bar = Bar.getBar("HPBar");
                 bar.setPercentage(100);
             }
         }

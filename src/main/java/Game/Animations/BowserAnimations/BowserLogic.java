@@ -8,6 +8,7 @@ import Persistence.Config;
 
 public class BowserLogic implements Runnable{
     private static final BowserLogic instance = new BowserLogic();
+
     private BowserLogic() {}
 
     public static BowserLogic getInstance() {return instance;}
