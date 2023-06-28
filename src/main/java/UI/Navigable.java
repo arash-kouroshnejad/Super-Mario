@@ -1,6 +1,6 @@
 package UI;
 
-import Persistence.Config;
+import persistence.Config;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.HashMap;
 
 public abstract class Navigable extends JFrame implements MouseListener {
     protected FrameController controller;
