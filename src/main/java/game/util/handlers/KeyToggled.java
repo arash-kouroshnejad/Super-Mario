@@ -1,9 +1,9 @@
-package game.util.Handlers;
+package game.util.handlers;
 
 
 import game.policy.PolicyStack;
-import game.util.Events.Event;
-import game.util.Events.EventHandler;
+import game.util.events.Event;
+import game.util.events.EventHandler;
 
 
 public class KeyToggled extends EventHandler {

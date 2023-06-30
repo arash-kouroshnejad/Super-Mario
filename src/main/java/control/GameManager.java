@@ -6,7 +6,7 @@ import core.util.Routine;
 import game.BowserLogic;
 import game.policy.policies.Keys.*;
 import game.policy.PolicyStack;
-import game.util.Loaders.GameLoader;
+import game.util.loaders.GameLoader;
 import game.MarioLogic;
 import game.model.GameStat;
 import UI.gameSetup.SetupController;
@@ -110,6 +110,7 @@ public class GameManager {
         bowserLogic = new BowserLogic();
         assetLoader.loadGame(ID);
         assetLoader.loadMap(ID, 3);
+        currentGame.setLevel(3);
         gameLogic.getModalTypes();
         createPolicyStack();
         LevelEditor.getInstance().setLoader(loader);

@@ -53,16 +53,16 @@ public class LevelEditor extends GameEngine {
         return loader;
     }
 
-    protected void insertAt(String type, int x, int y, int state, int layerIndex) {
+    protected synchronized void insertAt(String type, int x, int y, int state, int layerIndex) {
         insertAt(type, x, y, state, spritesFrame.getSpeedX(), spritesFrame.getSpeedY(), layerIndex);
     }
     // static element insertion
 
-    public void staticInsert(String type, int x, int y, int state, int layerIndex) {
+    public synchronized void staticInsert(String type, int x, int y, int state, int layerIndex) {
         insertAt(type, x, y, state, 0, 0, layerIndex);
     }
 
-    public void insertAt(String type, int x, int y, int state, int speedX, int speedY, int layerIndex) {
+    public synchronized void insertAt(String type, int x, int y, int state, int speedX, int speedY, int layerIndex) {
         mutex.acquire();
         // ugly code, layers is redundant really !!
         java.util.List<Layer> layers = this.layers.getALL_LAYERS();
@@ -97,7 +97,7 @@ public class LevelEditor extends GameEngine {
     }
     // dynamic element insertion
 
-    public void attachManager(Class<? extends ElementManager> c) {
+    public synchronized void attachManager(Class<? extends ElementManager> c) {
         mutex.acquire();
         try {
             var manager = c.getConstructor(DynamicElement.class).newInstance(lastAdded);
@@ -109,15 +109,16 @@ public class LevelEditor extends GameEngine {
         mutex.release();
     }
 
-    public void removeElement(String type, int layerIndex) {
+    public synchronized void removeElement(String type, int layerIndex) {
         mutex.acquire();
         getDynamicElement(type, layerIndex, 0).ifPresent(this::removeElement);
         getStaticElement(type, layerIndex, 0).ifPresent(this::removeElement);
         mutex.release();
     }
 
-    public void removeElement(StaticElement element) {
+    public synchronized void removeElement(StaticElement element) {
         mutex.acquire();
+        element.setHidden(true);
         for (var layer : layers.getALL_LAYERS()) {
             if (element instanceof DynamicElement) {
                 layer.getDynamicElements().remove((DynamicElement) element);

@@ -1,7 +1,7 @@
-package game.util.Events;
+package game.util.events;
 
 
-import game.util.Handlers.*;
+import game.util.handlers.*;
 
 import java.util.HashMap;
 import java.util.Map;

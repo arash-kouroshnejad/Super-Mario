@@ -6,7 +6,6 @@ import persistence.Config;
 public class JumpAttack extends BowserAnimation {
     private final int[] jumpIndexes = new int[2];
     private final int[] landingIndexes = new int[2];
-    private final int bowserDefault;
 
     public JumpAttack(DynamicElement element) {
         super(element);
@@ -15,7 +14,6 @@ public class JumpAttack extends BowserAnimation {
         jumpIndexes[1] = c.getProperty("JumpAttackMirrored", Integer.class);
         landingIndexes[0] = c.getProperty("BowserLanding", Integer.class);
         landingIndexes[1] = c.getProperty("BowserLandingMirrored", Integer.class);
-        bowserDefault = c.getProperty("BowserDefault", Integer.class);
     }
 
     @Override
@@ -26,14 +24,14 @@ public class JumpAttack extends BowserAnimation {
             if (element.getManager().isMirrored())
                 index = 1;
             element.swapImage(jumpIndexes[index]);
-            element.setSpeedY(-15);
+            element.setSpeedY(-8);
             element.setY(element.getY() - 2);
-            Thread.sleep(1500);
+            Thread.sleep(800);
             element.setSpeedY(0);
             element.swapImage(landingIndexes[index]);
-            Thread.sleep(1500);
+            Thread.sleep(800);
             element.setSpeedY(0);
-            element.swapImage(bowserDefault); // TODO : phase 1 and phase 2 images should be different
+            element.getManager().resetState();
             Thread.sleep(3000);
         } catch (Exception ignored) {}
     }

@@ -4,9 +4,7 @@ import core.objects.StaticElement;
 import game.model.GameStat;
 import persistence.Config;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PolicyReference {
     private final static PolicyReference instance = new PolicyReference();
@@ -32,4 +30,6 @@ public class PolicyReference {
     public Set<String> allBlocks;
     public Set<Integer> registeredKeys = new HashSet<>();
     public boolean crouching;
+
+    public final Map<String, Timer> timers = new HashMap<>();
 }

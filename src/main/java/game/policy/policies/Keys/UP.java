@@ -1,16 +1,19 @@
 package game.policy.policies.Keys;
 
 import core.render.ViewPort;
+import game.model.Mario;
 import game.policy.KeyPolicy;
 import persistence.Config;
 
-import static game.util.Handlers.KeyToggled.generateSword;
 
 public class UP extends KeyPolicy {
     @Override
     protected void press() {
-        if (policyReference.registeredKeys.contains(DOWN))
-            generateSword(); // todo
+        if (policyReference.registeredKeys.contains(UP)) {
+            var timers = policyReference.timers;
+            if (!timers.containsKey("SwordTimer"))
+                timers.put("SwordTimer", Mario.getInstance().getSword().generateTimer());
+        }
         else {
             var mario = ViewPort.getInstance().getLockedElement();
             Config c = Config.getInstance();
@@ -25,11 +28,12 @@ public class UP extends KeyPolicy {
     @Override
     protected void release() {
         var mario = ViewPort.getInstance().getLockedElement();
-        if (policyReference.registeredKeys.contains(DOWN)) {
-            // todo
+        mario.setSpeedY(0);
+        var timers = policyReference.timers;
+        if (timers.containsKey("SwordTimer")) {
+            Mario.getInstance().getSword().cancel();
+            policyReference.timers.remove("SwordTimer");
         }
-        else
-            mario.setSpeedY(0);
     }
 
     @Override

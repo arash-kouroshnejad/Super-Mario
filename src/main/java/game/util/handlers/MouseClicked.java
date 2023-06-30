@@ -1,9 +1,9 @@
-package game.util.Handlers;
+package game.util.handlers;
 
 import game.plugins.ModalPanel;
-import game.util.Events.Event;
-import game.util.Events.EventHandler;
-import game.util.Events.EventQueue;
+import game.util.events.Event;
+import game.util.events.EventHandler;
+import game.util.events.EventQueue;
 
 public class MouseClicked extends EventHandler {
 

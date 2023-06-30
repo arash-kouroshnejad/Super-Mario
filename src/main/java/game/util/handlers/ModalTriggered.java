@@ -1,9 +1,9 @@
-package game.util.Handlers;
+package game.util.handlers;
 
 import control.GameManager;
 import game.plugins.ModalPanel;
-import game.util.Events.Event;
-import game.util.Events.EventHandler;
+import game.util.events.Event;
+import game.util.events.EventHandler;
 
 public class ModalTriggered extends EventHandler {
 

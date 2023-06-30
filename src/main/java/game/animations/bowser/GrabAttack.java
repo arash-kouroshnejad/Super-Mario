@@ -29,7 +29,7 @@ public class GrabAttack extends BowserAnimation {
                 element.swapImage(defaultIndexes[1]);
             else
                 element.swapImage(defaultIndexes[0]);
-            if (element.collidesWith(mario) && element.collidesHorizontally(mario)) {// TODO : maybe there is a better condition to check
+            if (element.collidesWith(mario) && element.isLevelWith(mario)) {// TODO : maybe there is a better condition to check
                 hasGrabbed = true;
                 logic.captureMario();
             }
@@ -53,5 +53,8 @@ public class GrabAttack extends BowserAnimation {
         hasGrabbed = false;
         ViewPort.getInstance().getLockedElement().setHidden(false);
         element.swapImage(defaultIndexes[element.getManager().isMirrored() ? 1 : 0]);
+        try {
+            Thread.sleep(4000);
+        } catch (Exception ignored) {}
     }
 }

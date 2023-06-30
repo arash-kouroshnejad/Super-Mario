@@ -1,16 +1,20 @@
 package game.policy.policies.Keys;
 
 import core.render.ViewPort;
+import game.model.Mario;
 import game.policy.KeyPolicy;
 import persistence.Config;
 
-import static game.util.Handlers.KeyToggled.generateSword;
+
 
 public class DOWN extends KeyPolicy {
 
     protected void press() {
-        if (policyReference.registeredKeys.contains(UP))
-            generateSword(); // todo
+        if (policyReference.registeredKeys.contains(UP)) {
+            var timers = policyReference.timers;
+            if (!timers.containsKey("SwordTimer"))
+                timers.put("SwordTimer", Mario.getInstance().getSword().generateTimer());
+        }
         else {
             var mario = ViewPort.getInstance().getLockedElement();
             if (!mario.getType().equals("MiniMario") && !policyReference.crouching &&
@@ -33,8 +37,10 @@ public class DOWN extends KeyPolicy {
             mario.setY(mario.getY() - mario.getHeight() / 3);
             mario.setHeight((mario.getHeight() * 4) / 3);
         }
-        else if (policyReference.registeredKeys.contains(UP)) {
-            // todo
+        var timers = policyReference.timers;
+        if (timers.containsKey("SwordTimer")) {
+            Mario.getInstance().getSword().cancel();
+            policyReference.timers.remove("SwordTimer");
         }
     }
 

@@ -1,11 +1,11 @@
-package game.util.Handlers;
+package game.util.handlers;
 
 import control.GameManager;
 import core.render.GameEngine;
 import game.plugins.ModalPanel;
 import game.plugins.SoundQueue;
-import game.util.Events.Event;
-import game.util.Events.EventHandler;
+import game.util.events.Event;
+import game.util.events.EventHandler;
 
 public class ModalOptionSelected extends EventHandler {
 

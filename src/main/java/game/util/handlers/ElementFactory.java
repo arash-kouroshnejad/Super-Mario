@@ -1,12 +1,11 @@
-package game.util.Handlers;
+package game.util.handlers;
 
 import core.editor.LevelEditor;
 import core.render.ViewPort;
 import game.animations.items.*;
 import game.animations.mario.MarioThread;
-import game.plugins.Bar;
-import game.util.Events.Event;
-import game.util.Events.EventHandler;
+import game.util.events.Event;
+import game.util.events.EventHandler;
 import persistence.Config;
 
 import java.awt.*;
@@ -37,7 +36,7 @@ public class ElementFactory extends EventHandler{
             }
             case "MiniMario", "MegaMario", "FireMario" -> {
                 editor.removeElement(ViewPort.getInstance().getLockedElement());
-                editor.insertAt(command, point.x, point.y, 0, 0, 0, layerIndex);
+                editor.insertAt(command, point.x, point.y - 40, 0, 0, 0, layerIndex);
                 editor.attachManager(MarioThread.class);
             }
             case "GenerateShield" -> {
@@ -56,8 +55,7 @@ public class ElementFactory extends EventHandler{
                 editor.attachManager(BulletThread.class);
             }
             case "Sword" -> {
-                var coordinates = ViewPort.getInstance().getLockedElement().getPosition();
-                editor.insertAt("PipeSword", coordinates.x, coordinates.y, 0, 0, 0, layerIndex);
+                editor.insertAt("PipeSword", point.x, point.y, 0, 0, 0, layerIndex);
                 editor.attachManager(SwordThread.class);
             }
             case "Coin" -> {
@@ -66,7 +64,7 @@ public class ElementFactory extends EventHandler{
             }
             case "Brick" -> editor.staticInsert("Brick", point.x, point.y, 0, staticLayer);
             case "FilledBlock" -> editor.staticInsert("FilledBlock", point.x, point.y, 0, staticLayer);
-            case "Bomb" -> editor.insertAt("Bomb", point.x, point.y + 40, 0, 0, 0, layerIndex);
+            case "Bomb" -> editor.insertAt("Bomb", point.x, point.y, 0, 0, 0, layerIndex);
             case "FireBall" -> {
                 var bowser = editor.getDynamicElement("Bowser", layerIndex, 0).orElseThrow();
                 boolean mirrored = bowser.getManager().isMirrored();
@@ -74,8 +72,8 @@ public class ElementFactory extends EventHandler{
                 editor.insertAt("FireBall", deploy.x, deploy.y, 0, mirrored ? -2 : 2, 0, layerIndex);
             }
             case "HPBar" -> {
-                var bar = Bar.getBar("HPBar");
-                bar.setPercentage(100);
+                /*var bar = Bar.getBar("HPBar");
+                bar.setPercentage(100);*/
             }
         }
     }

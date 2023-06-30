@@ -15,17 +15,13 @@ import game.animations.enemies.PlantThread;
 import game.animations.enemies.SpinyThread;
 import game.animations.mario.MarioThread;
 import game.animations.items.CoinThread;
-import game.model.CoinFilledBlocks;
-import game.model.GameStat;
-import game.model.Mario;
-import game.model.ShieldTimer;
-import game.plugins.Bar;
+import game.model.*;
 import game.plugins.Correction;
 import game.plugins.Gravity;
 import game.plugins.SoundQueue;
-import game.util.Events.Event;
-import game.util.Events.EventQueue;
-import game.util.Events.EventType;
+import game.util.events.Event;
+import game.util.events.EventQueue;
+import game.util.events.EventType;
 import persistence.Config;
 
 import java.awt.*;
@@ -64,6 +60,8 @@ public class MarioLogic extends Logic {
 
     private Routine correction;
     private BowserLogic bowserLogic;
+
+    private Set<String> hoveringBlocks;
 
     public void init(Loader loader) {
         soundSystem.init(this);
@@ -136,6 +134,7 @@ public class MarioLogic extends Logic {
                     manager.getBowserLogic().init();
                     bt.start();
                     animations.add(bt);
+                    // Bar.getBar("HPBar");
                 }
             }
         }
@@ -148,6 +147,14 @@ public class MarioLogic extends Logic {
         correction = new Correction();
         correction.start();
         bowserLogic = manager.getBowserLogic();
+        if (currentGame.getLevel() == 3) {
+            Config c = Config.getInstance();
+            Set<String> types = new HashSet<>(List.of(c.getProperty("TimedBlocks").split(",")));
+            hoveringBlocks = types;
+            for (var block : statics)
+                if (types.contains(block.getType()))
+                    TimedBlock.addBlock(block, 2000);
+        }
     } // TODO : clean and segregate this method !
 
     @Override
@@ -187,7 +194,7 @@ public class MarioLogic extends Logic {
         animations.clear();
         gThread.remove();
         gThread = new Gravity();
-        Bar.resetAllBars();
+        // Bar.resetAllBars();
         correction.kill();
         if (shield.isActive())
             shield.deactivate();
@@ -228,7 +235,7 @@ public class MarioLogic extends Logic {
         marioState = Math.min(2, ++marioState);
         if (marioState != lastState)
             EventQueue.getInstance().publish(new Event(EventType.GenerateElement,
-                    lockedElement.getX() + "x" + (lockedElement.getY() - 20) + "," +
+                    lockedElement.getX() + "x" + lockedElement.getY() + "," +
                             Mario.getInstance().getMarioState(marioState).name()));
     }
 
@@ -271,6 +278,7 @@ public class MarioLogic extends Logic {
         lockedElement.setY(lockedElement.getY() - 10); // TODO : collision avoiding distance :(
         if (onSlime)
             deactivateSuperJump();
+        bowserLogic.resetTimer();
     }
 
     private void updateTime() {
@@ -310,7 +318,8 @@ public class MarioLogic extends Logic {
         inTouch[0] = false;
         saveReady = false;
         int index = 0;
-        for (var element : dynamics) {
+        ArrayList<DynamicElement> cloned = new ArrayList<>(dynamics);
+        for (var element : cloned) {
             // gravity
             if (element.getBounds().BOTTOM > ViewPort.getInstance().getHeight() - 20) { // TODO : read the bottom bound from config
                 element.setHidden(true);
@@ -328,7 +337,9 @@ public class MarioLogic extends Logic {
             // collision with statics
             for (StaticElement element1 : statics) {
                 if (element.collidesWith(element1)) {
-                    if (element.isLockedCharacter() && !element1.isHidden()) // TODO : GET RID OF THE IsHidden CALL
+                    if (element.isLockedCharacter() && !element1.isHidden()) { // TODO : GET RID OF THE IsHidden CALL
+                        if (TimedBlock.isTimed(element1))
+                            TimedBlock.getBlock(element1).check(10);
                         switch (element1.getType()) {
                             case "FlagPole" -> {
                                 calculateScore();
@@ -367,8 +378,7 @@ public class MarioLogic extends Logic {
                                         element.setSpeedX((Math.max(0, element.getSpeedX())));
                                         element.setX(element.getX() + 10);
                                     } // s <- d
-                                }
-                                else {
+                                } else {
                                     // vertical collision
                                     if (element.beneath(element1)) {
                                         element.setSpeedY(Math.max(0, element.getSpeedY())); // gonna run this twice ,but it won't be an issue
@@ -417,6 +427,10 @@ public class MarioLogic extends Logic {
                                             deactivateSuperJump();
                                         inTouch[0] = true;
                                         element.setSpeedY(Math.min(0, element.getSpeedY()));
+                                        if (element1.getType().equals("Floor")) {
+                                            TimedBlock.reset();
+                                            bowserLogic.accumulateTimer(10);
+                                        }
                                     } // s < d
                                 }
                             }
@@ -425,7 +439,8 @@ public class MarioLogic extends Logic {
                                     saveReady = true;
                             }
                         }
-                    else if (element.getType().equals("Bullet") || element.getType().equals("FireBall")) {
+                    }
+                    else if (element.getType().equals("Bullet") || element.getType().equals("FireBall") || element.getType().equals("PipeSword")) {
                         removalQueue.add(element);
                     }
                     else if (element.getType().equals("Bomb")) {
@@ -436,11 +451,15 @@ public class MarioLogic extends Logic {
                             if (inRange(new Point(element.getX(), element.getY()), tmp)) {
                                 if (tmp.isLockedCharacter())
                                     takeDamage();
+                                else if (tmp.getType().equals("Bowser"))
+                                    bowserLogic.takeBullet();
                                 else
                                     removalQueue.add(tmp);
                             }
                         }
                     }
+                    else if (element.getType().equals("Bowser") && hoveringBlocks.contains(element1.getType()))
+                        removalQueue.add(element1);
                     else {
                         if (element.collidesHorizontally(element1)) {
                             element.setSpeedX(-element.getSpeedX());
@@ -452,7 +471,7 @@ public class MarioLogic extends Logic {
                 }
             }
             // collision with dynamics
-            for (var iter = dynamics.listIterator(index); iter.hasNext(); ) {
+            for (var iter = cloned.listIterator(index); iter.hasNext(); ) { // todo duplication
                 DynamicElement element1 = iter.next();
                 if (element.collidesWith(element1)) {
                     // mario
@@ -520,11 +539,14 @@ public class MarioLogic extends Logic {
                                     }
                                     break;
                                 case "Bomb", "Bird", "Spiny", "FireBall":
-                                    takeDamage();
+                                    if (!shield.isActive())
+                                        takeDamage();
+                                    else
+                                        removalQueue.add(element1);
                                     break;
                                 case "Bowser":
                                     if (!element.collidesHorizontally(element1))
-                                        bowserLogic.takeDamage();
+                                        bowserLogic.takeHit();
                                     break;
                             }
                         }
@@ -540,7 +562,10 @@ public class MarioLogic extends Logic {
                     } else if (element1.getType().equals("PipeSword")) {
                         if (element.getType().equals("Goomba") || element.getType().equals("Plant"))
                             removalQueue.add(element);
-                        removalQueue.add(element1);
+                        if (element.getType().equals("Bowser"))
+                            bowserLogic.takeCut();
+                        if (!element.getType().equals("PipeSword"))
+                            removalQueue.add(element1);
                     } else if (element1.getType().equals("Bomb")) {
                         if (element.getType().equals("Goomba") || element.getType().equals("Koopa") ||
                                 element.getType().equals("Spiny") || element.getType().equals("Plant")) {
@@ -551,15 +576,15 @@ public class MarioLogic extends Logic {
                         if (element.getType().equals("Goomba") || element.getType().equals("Plant") ||
                                 element.getType().equals("Spiny") || element.getType().equals("Bird")) {
                             removalQueue.add(element);
-                            removalQueue.add(element1);
                             currentGame.killEnemy();
-                        } else if (!(element.getType().equals("GoldenRing") || element.getType().equals("Bullet"))) { // todo : fix iterator index, repetition
-                            removalQueue.add(element1); // TODO : this whole collision checking is order dependent make it not so
-                            System.out.println(element.getType());
                         }
+                        else if (element.getType().equals("Bowser"))
+                            bowserLogic.takeBullet();
+                        if (!(element.getType().equals("Bullet") || element.getType().equals("GoldenRing")))
+                            removalQueue.add(element1);
                     } else if (element.getType().equals("Koopa") && (element1.getType().equals("Goomba")) ||
                             element1.getType().equals("Spiny"))
-                        if (element.getManager().isPaused())
+                        if (element.getManager().isPaused()) // todo : debug
                             removalQueue.add(element1);
                     else if (element1.getType().equals("Koopa") && (element.
                             getType().equals("Goomba") || element.getType().equals("Spiny")))
@@ -603,10 +628,10 @@ public class MarioLogic extends Logic {
         g.drawString("WORLD : " + currentGame.getLevel(), mid - 500, 100);
         if (saveReady)
             g.drawString("HIT X TO ENTER THE SAVE MENU", mid - 100, 200);
-        if (shield.isActive())
+        /*if (shield.isActive())
             g.drawString("Shield", Bar.getBar("Shield").getTilePosition().x, Bar.getBar("Shield").getTilePosition().y);
         g.drawString("Bowser, the King Of koopa", Bar.getBar("HPBar").getTilePosition().x,
-                Bar.getBar("HPBar").getTilePosition().y);
+                Bar.getBar("HPBar").getTilePosition().y);*/
     }
 
     @Override

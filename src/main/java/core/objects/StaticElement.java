@@ -103,6 +103,10 @@ public class StaticElement {
         return Math.abs(getBounds().TOP - element.getBounds().BOTTOM) < 10;
     }
 
+    public boolean isLevelWith(StaticElement element) {
+        return Math.abs(element.getBounds().BOTTOM - getBounds().BOTTOM) <= 5;
+    }
+
     public String getType() {
         return type;
     }

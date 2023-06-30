@@ -2,9 +2,9 @@ package game.policy.policies.Objects;
 
 import core.objects.DynamicElement;
 import core.objects.StaticElement;
-import game.util.Events.Event;
-import game.util.Events.EventQueue;
-import game.util.Events.EventType;
+import game.util.events.Event;
+import game.util.events.EventQueue;
+import game.util.events.EventType;
 
 public class PowerUpBlock extends BlockPolicy {
 

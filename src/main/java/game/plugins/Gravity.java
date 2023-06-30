@@ -27,7 +27,8 @@ public class Gravity extends Thread{ // TODO : make it abstract and move it to e
             try {
                 for (DynamicElement element : elements) {
                     if (!element.isHidden() && !(element.getType().equals("Plant") || element.getType().equals("Bullet")
-                            || element.getType().equals("Bird") || element.getType().equals("FireBall")))
+                            || element.getType().equals("Bird") || element.getType().equals("FireBall") ||
+                            element.getType().equals("PipeSword")))
                         element.setSpeedY(element.getSpeedY() + 1);
                 }
                 Thread.sleep(100);

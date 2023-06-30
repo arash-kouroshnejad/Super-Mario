@@ -1,9 +1,9 @@
 package game.animations.bowser;
 
 import core.objects.DynamicElement;
-import game.util.Events.Event;
-import game.util.Events.EventQueue;
-import game.util.Events.EventType;
+import game.util.events.Event;
+import game.util.events.EventQueue;
+import game.util.events.EventType;
 import persistence.Config;
 
 public class FireBallAttack extends BowserAnimation {
@@ -11,7 +11,6 @@ public class FireBallAttack extends BowserAnimation {
     private final int FireBallAttackMirrored;
     private final int FireBallReleased;
     private final int FireBallReleasedMirrored;
-    private final int defaultState;
 
     public FireBallAttack(DynamicElement element) {
         super(element);
@@ -20,7 +19,6 @@ public class FireBallAttack extends BowserAnimation {
         FireBallAttackMirrored = c.getProperty("FireBallAttackMirrored", Integer.class);
         FireBallReleased = c.getProperty("FireBallReleased", Integer.class);
         FireBallReleasedMirrored = c.getProperty("FireBallReleasedMirrored", Integer.class);
-        defaultState = c.getProperty("BowserDefault", Integer.class);
     }
 
     @Override
@@ -35,7 +33,7 @@ public class FireBallAttack extends BowserAnimation {
                     element.getY() + ",FireBall"));
             element.swapImage((mirrored) ? FireBallReleasedMirrored : FireBallReleased);
             Thread.sleep(800); // TODO : 800 ms sleep is dangerous maybe mario preforms some action :(
-            element.swapImage(defaultState);
+            element.getManager().resetState();
             Thread.sleep(2000);
         } catch (Exception ignored) {}
     }

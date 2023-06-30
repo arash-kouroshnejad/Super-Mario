@@ -43,8 +43,12 @@ public class Bar {
         int delta = containerDimension.height - contentDimension.height;
         editor.staticInsert("Bar", deploy.x, deploy.y, 0, 2);
         editor.staticInsert("FilledBar", deploy.x, deploy.y + delta / 2, 0, 2);
-        content = editor.getStaticElement("FilledBar", 2, index).orElseThrow();
-        container = editor.getStaticElement("Bar", 2, index).orElseThrow();
+        try  {
+            content = editor.getStaticElement("FilledBar", 2, index).orElseThrow();
+            container = editor.getStaticElement("Bar", 2, index).orElseThrow();
+        } catch (Exception e) {
+            System.out.println(index);
+        }
     }
     public Point getTilePosition() {
         var dimension = ViewPort.getInstance().getDimension();

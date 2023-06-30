@@ -1,4 +1,4 @@
-package game.util.Events;
+package game.util.events;
 
 public enum EventType {
     ModalTriggered,

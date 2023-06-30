@@ -4,9 +4,9 @@ import core.objects.DynamicElement;
 import core.objects.ElementManager;
 import core.render.ViewPort;
 import game.model.ShieldTimer;
-import game.util.Events.Event;
-import game.util.Events.EventQueue;
-import game.util.Events.EventType;
+import game.util.events.Event;
+import game.util.events.EventQueue;
+import game.util.events.EventType;
 
 public class ShieldThread extends ElementManager {
     public ShieldThread(DynamicElement element) {

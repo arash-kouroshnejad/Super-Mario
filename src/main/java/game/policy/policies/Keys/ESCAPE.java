@@ -1,9 +1,9 @@
 package game.policy.policies.Keys;
 
 import game.policy.KeyPolicy;
-import game.util.Events.Event;
-import game.util.Events.EventQueue;
-import game.util.Events.EventType;
+import game.util.events.Event;
+import game.util.events.EventQueue;
+import game.util.events.EventType;
 
 public class ESCAPE extends KeyPolicy {
 
