@@ -1,4 +1,4 @@
-package game.policy.policies.Objects;
+package game.policy.policies.objects.statics;
 
 import core.objects.DynamicElement;
 import core.objects.StaticElement;
@@ -14,12 +14,12 @@ public class PowerUpBlock extends BlockPolicy {
     }
 
     @Override
-    protected void customBlockBehaviour(DynamicElement element1) {
-        if (!policyReference.activatedBlocks.contains(element1)) {
-            policyReference.activatedBlocks.add(element1);
+    protected void customBlockBehaviour(DynamicElement element1, StaticElement element2) {
+        if (!policyReference.activatedBlocks.contains(element2)) {
+            policyReference.activatedBlocks.add(element2);
             EventQueue.getInstance().publish(new Event(EventType.GenerateElement,
-                    element1.getX() + "x" + (element1.getY() - 18) + ",Item"));
-            element1.swapImage(1);
+                    element2.getX() + "x" + (element2.getY() - 18) + ",Item"));
+            element2.swapImage(1);
         }
     }
 }

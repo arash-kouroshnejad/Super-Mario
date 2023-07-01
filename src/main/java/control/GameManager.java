@@ -4,8 +4,8 @@ import core.editor.LevelEditor;
 import core.render.GameEngine;
 import core.util.Routine;
 import game.BowserLogic;
-import game.policy.policies.Keys.*;
-import game.policy.PolicyStack;
+import game.policy.policies.keys.*;
+import game.policy.KeyStack;
 import game.util.loaders.GameLoader;
 import game.MarioLogic;
 import game.model.GameStat;
@@ -109,8 +109,8 @@ public class GameManager {
     private void setUpFrame(MarioLogic logic, GameLoader loader, int ID) {
         bowserLogic = new BowserLogic();
         assetLoader.loadGame(ID);
-        assetLoader.loadMap(ID, 3);
-        currentGame.setLevel(3);
+        /*assetLoader.loadMap(ID, 3);
+        currentGame.setLevel(3);*/
         gameLogic.getModalTypes();
         createPolicyStack();
         LevelEditor.getInstance().setLoader(loader);
@@ -121,7 +121,7 @@ public class GameManager {
         engine.startGame();
     }
     private void createPolicyStack() {
-        var keys = PolicyStack.getInstance().getKeyPolicies();
+        var keys = KeyStack.getInstance().getKeyPolicies();
         keys.add(new DOWN());
         keys.add(new X());
         keys.add(new UP());

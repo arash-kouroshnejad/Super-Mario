@@ -23,7 +23,7 @@ public class TimedBlock{
     }
 
     private long capacity;
-    private long initCapacity;
+    private final long initCapacity;
     private final StaticElement element;
 
     private TimedBlock(long capacity, StaticElement element) {

@@ -1,4 +1,4 @@
-package game.policy.policies.Keys;
+package game.policy.policies.keys;
 
 import control.GameManager;
 import game.policy.KeyPolicy;

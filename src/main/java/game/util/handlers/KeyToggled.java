@@ -1,7 +1,7 @@
 package game.util.handlers;
 
 
-import game.policy.PolicyStack;
+import game.policy.KeyStack;
 import game.util.events.Event;
 import game.util.events.EventHandler;
 
@@ -15,7 +15,7 @@ public class KeyToggled extends EventHandler {
     public void run() {
         int keyCode = Integer.parseInt(event.attribute().split(",")[0]);
         boolean pressed = event.attribute().split(",")[1].equals("Press");
-        var stack = PolicyStack.getInstance().getKeyPolicies();
+        var stack = KeyStack.getInstance().getKeyPolicies();
         for (var policy : stack)
             if (policy.isEnforceable(keyCode)) {
                 policy.enforce(keyCode, pressed);

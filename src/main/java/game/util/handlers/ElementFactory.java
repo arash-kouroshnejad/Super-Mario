@@ -64,7 +64,7 @@ public class ElementFactory extends EventHandler{
             }
             case "Brick" -> editor.staticInsert("Brick", point.x, point.y, 0, staticLayer);
             case "FilledBlock" -> editor.staticInsert("FilledBlock", point.x, point.y, 0, staticLayer);
-            case "Bomb" -> editor.insertAt("Bomb", point.x, point.y, 0, 0, 0, layerIndex);
+            case "Bomb" -> editor.insertAt("Bomb", point.x, point.y + 80, 0, 0, 0, layerIndex);
             case "FireBall" -> {
                 var bowser = editor.getDynamicElement("Bowser", layerIndex, 0).orElseThrow();
                 boolean mirrored = bowser.getManager().isMirrored();

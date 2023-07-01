@@ -1,4 +1,4 @@
-package game.policy.policies.Keys;
+package game.policy.policies.keys;
 
 import core.render.ViewPort;
 import game.model.Mario;
@@ -9,7 +9,7 @@ import persistence.Config;
 public class UP extends KeyPolicy {
     @Override
     protected void press() {
-        if (policyReference.registeredKeys.contains(UP)) {
+        if (policyReference.registeredKeys.contains(DOWN)) {
             var timers = policyReference.timers;
             if (!timers.containsKey("SwordTimer"))
                 timers.put("SwordTimer", Mario.getInstance().getSword().generateTimer());
@@ -22,6 +22,9 @@ public class UP extends KeyPolicy {
             } else {
                 mario.swapImage(c.getProperty(mario.getType() + "Jumping", Integer.class));
             }
+            policyReference.jumping = true;
+            if (policyReference.onGround)
+                policyReference.marioLogic.jump();
         }
     }
 

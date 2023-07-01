@@ -2,7 +2,7 @@ package game.animations.mario;
 
 import core.objects.DynamicElement;
 import game.animations.AbstractAnimation;
-import game.policy.PolicyStack;
+import game.policy.KeyStack;
 import game.util.events.Event;
 import game.util.events.EventQueue;
 import game.util.events.EventType;
@@ -16,7 +16,7 @@ public class SwordAnimation extends AbstractAnimation {
     @Override
     public void run() {
         var manager = element.getManager();
-        PolicyStack.getInstance().disableKeys();
+        KeyStack.getInstance().disableKeys();
         manager.pause();
         element.setSpeedX(0);
         String reference = element.getType() + "Sword" + (manager.isMirrored() ? "Mirrored" : "");
@@ -25,7 +25,7 @@ public class SwordAnimation extends AbstractAnimation {
             Thread.sleep(2000);
         } catch (Exception ignored) {}
         manager.resetState();
-        PolicyStack.getInstance().resetKeys();
+        KeyStack.getInstance().resetKeys();
         boolean mirrored = manager.isMirrored();
         int x = element.getX() + ((mirrored) ? -50 : (element.getWidth() + 50));
         int y = element.getY();

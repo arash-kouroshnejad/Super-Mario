@@ -1,4 +1,8 @@
 import control.GameManager;
+import core.editor.LevelEditor;
+import core.editor.MapLoader;
+import game.MarioLogic;
+import game.util.loaders.Creator;
 import persistence.*;
 
 

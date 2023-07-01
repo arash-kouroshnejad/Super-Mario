@@ -1,17 +1,17 @@
-package game.policy.policies.Objects;
+package game.policy.policies.objects.statics;
 
 
 import core.objects.DynamicElement;
 import core.objects.StaticElement;
 import game.policy.D2SPolicy;
 
-public class FlagPolicy extends D2SPolicy {
+public class Flag extends D2SPolicy {
     @Override
     public boolean enforce(DynamicElement element1, StaticElement element2) {
-        gameLogic.calculateScore();
+        policyReference.marioLogic.calculateScore();
         manager.saveProgress(); // TODO : test save/load extensively
         policyReference.currentGame.setLevel(policyReference.currentGame.getLevel() + 1);
-        gameLogic.reset();
+        policyReference.marioLogic.reset();
         return true;
     }
 

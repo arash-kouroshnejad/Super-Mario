@@ -1,14 +1,15 @@
-package game.policy.policies.Keys;
+package game.policy.policies.keys;
 
 import game.policy.KeyPolicy;
 import game.util.events.Event;
 import game.util.events.EventQueue;
 import game.util.events.EventType;
 
-public class SPACE extends KeyPolicy {
+public class X extends KeyPolicy {
     @Override
     protected void press() {
-        EventQueue.getInstance().publish(new Event(EventType.GenerateElement, "0x0,Bullet"));
+        if (policyReference.saveReady)
+            EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "SaveOptions"));
     }
 
     @Override
@@ -18,6 +19,6 @@ public class SPACE extends KeyPolicy {
 
     @Override
     public boolean isEnforceable(int keyCode) {
-        return keyCode == SPACE;
+        return keyCode == X;
     }
 }

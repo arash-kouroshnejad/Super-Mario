@@ -1,14 +1,15 @@
-package game.policy.policies.Keys;
+package game.policy.policies.keys;
 
 import game.policy.KeyPolicy;
 import game.util.events.Event;
 import game.util.events.EventQueue;
 import game.util.events.EventType;
 
-public class X extends KeyPolicy {
+public class ESCAPE extends KeyPolicy {
+
     @Override
     protected void press() {
-        EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "SaveOptions"));
+        EventQueue.getInstance().publish(new Event(EventType.ModalTriggered, "PauseOptions"));
     }
 
     @Override
@@ -18,6 +19,6 @@ public class X extends KeyPolicy {
 
     @Override
     public boolean isEnforceable(int keyCode) {
-        return keyCode == X;
+        return keyCode == ESCAPE;
     }
 }

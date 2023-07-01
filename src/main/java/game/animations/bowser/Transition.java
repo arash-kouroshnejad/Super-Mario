@@ -3,7 +3,7 @@ package game.animations.bowser;
 import core.objects.DynamicElement;
 import core.render.ViewPort;
 import game.animations.AbstractAnimation;
-import game.policy.PolicyStack;
+import game.policy.KeyStack;
 
 public class Transition extends BowserAnimation{
     private final AbstractAnimation jumpAttack;
@@ -14,13 +14,13 @@ public class Transition extends BowserAnimation{
 
     @Override
     public void run() {
-        PolicyStack.getInstance().disableKeys();
+        KeyStack.getInstance().disableKeys();
         var mario = ViewPort.getInstance().getLockedElement();
         mario.setSpeedX(0);
         mario.getManager().pause();
         mario.getManager().resetState();
         jumpAttack.run();
         logic.enablePhase2();
-        PolicyStack.getInstance().resetKeys();
+        KeyStack.getInstance().resetKeys();
     }
 }

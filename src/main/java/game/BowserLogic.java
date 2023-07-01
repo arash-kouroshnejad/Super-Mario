@@ -7,8 +7,9 @@ import core.render.ViewPort;
 import game.animations.AbstractAnimation;
 import game.animations.bowser.*;
 import game.model.BowserState;
-import game.policy.policies.Keys.STRANGLE;
-import game.policy.PolicyStack;
+import game.policy.PolicyReference;
+import game.policy.policies.keys.STRANGLE;
+import game.policy.KeyStack;
 import game.util.events.Event;
 import game.util.events.EventQueue;
 import game.util.events.EventType;
@@ -54,6 +55,8 @@ public class BowserLogic implements Runnable{
     private long timeOnGround;
 
     private boolean[] attacksUsed = new boolean[3];
+
+    private PolicyReference policyReference = PolicyReference.getInstance();
 
     public void init() {
         int layer = Config.getInstance().getProperty("DynamicsLayer", Integer.class);
@@ -157,8 +160,8 @@ public class BowserLogic implements Runnable{
         mario.setSpeedX(0);
         mario.getManager().resetState();
         mario.setHidden(true);
-        PolicyStack.getInstance().disableKeys();
-        var keys = PolicyStack.getInstance().getKeyPolicies();
+        KeyStack.getInstance().disableKeys();
+        var keys = KeyStack.getInstance().getKeyPolicies();
         keys.add(new STRANGLE());
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -166,7 +169,7 @@ public class BowserLogic implements Runnable{
             public void run() {
                 thwartMario();
                 logic.takeDamage();
-                PolicyStack.getInstance().resetKeys();
+                KeyStack.getInstance().resetKeys();
                 grabAttack.reset();
             }
         }, 5000);
@@ -174,7 +177,7 @@ public class BowserLogic implements Runnable{
 
     public void releaseMario() {
         timer.cancel();
-        PolicyStack.getInstance().resetKeys();
+        KeyStack.getInstance().resetKeys();
         thwartMario();
         var mario = ViewPort.getInstance().getLockedElement();
         mario.setHidden(false);
@@ -228,7 +231,7 @@ public class BowserLogic implements Runnable{
 
     public void enablePhase2() {
         var marioLogic = GameManager.getInstance().getGameLogic();
-        marioLogic.marioState = 2;
+        policyReference.marioState = 2;
         var mario = ViewPort.getInstance().getLockedElement();
         EventQueue.getInstance().publish(new Event(EventType.GenerateElement,
                 mario.getX() + "x" + (mario.getY() - 20) + "," + "FireMario"));
