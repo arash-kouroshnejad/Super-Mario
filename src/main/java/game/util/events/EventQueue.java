@@ -31,11 +31,6 @@ public class EventQueue {
     }
 
     public synchronized void publish(Event event) {
-        /*queue.add(event);
-        for (var handler : handlers)
-            handler.restart();*/
-        /*handlers.get(event.type()).setEvent(event);
-        pool.submit(handlers.get(event.type()));*/
         switch (event.type()) {
             case KeyToggled -> pool.submit(new KeyToggled(event));
             case ModalTriggered -> pool.submit(new ModalTriggered(event));

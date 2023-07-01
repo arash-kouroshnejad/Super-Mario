@@ -12,7 +12,7 @@ public class BlockPolicy extends D2SPolicy {
     @Override
     public boolean enforce(DynamicElement element1, StaticElement element2) {
         if (element1.isLockedCharacter()) {
-            if (element1.collidesHorizontally(element2)) {
+            if (element1.collidesHorizontally(element2) && !element2.isHidden()) {
                 checkHorizontal(element1, element2);
             }
             else {

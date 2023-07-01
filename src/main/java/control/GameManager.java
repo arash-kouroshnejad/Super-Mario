@@ -31,7 +31,7 @@ public class GameManager {
     private GameLoader assetLoader;
     private GameStat currentGame;
     private Routine gameLoop;
-    private GameManager() {}
+    private GameManager() {createPolicyStack();}
     public void showWelcome() {
         WelcomeController welcomeController = new WelcomeController();
         welcomeController.show();
@@ -112,7 +112,6 @@ public class GameManager {
         /*assetLoader.loadMap(ID, 3);
         currentGame.setLevel(3);*/
         gameLogic.getModalTypes();
-        createPolicyStack();
         LevelEditor.getInstance().setLoader(loader);
         engine.init(logic);
         gameLogic.init(loader);

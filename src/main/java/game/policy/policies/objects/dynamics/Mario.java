@@ -67,7 +67,7 @@ public class Mario extends DynamicPolicy {
                         } else {
                             boolean mirrored = element.getManager().isMirrored();
                             element1.setSpeedX(mirrored ? -2 : 2);
-                            element1.setX(element1.getX() + (mirrored ? -5 : 5));
+                            element1.setX(element1.getX() + (mirrored ? -40 : 40));
                             element1.getManager().resetState();
                         }
                     } else {

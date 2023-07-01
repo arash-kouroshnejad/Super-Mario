@@ -41,6 +41,7 @@ public class LevelEditor extends GameEngine {
         gameLogic.setLockedElement(ViewPort.getInstance().getLockedElement());
         GameEngine.getInstance().init(gameLogic);
         spritesFrame = new SpritePicker();
+        new MovementThread().start();
     }
 
     public void createMap() {

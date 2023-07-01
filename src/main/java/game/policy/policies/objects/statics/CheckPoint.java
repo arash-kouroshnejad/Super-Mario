@@ -14,6 +14,6 @@ public class CheckPoint extends D2SPolicy {
 
     @Override
     public boolean isEnforceable(DynamicElement element1, StaticElement element2) {
-        return element2.getType().equals("FlagPole");
+        return element2.getType().equals("CheckPoint");
     }
 }
