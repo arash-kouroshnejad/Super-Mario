@@ -129,20 +129,6 @@ public class GameManager {
         keys.add(new RIGHT());
         keys.add(new ESCAPE());
     }
-    private void startHandlers() { // TODO : move this method to where it belongs !
-        /*var keyHandler = new KeyToggled();
-        var clickHandler = new MouseClicked();
-        var generator = new ElementGenerator();
-        var modalOptionHandler = new ModalOptionSelected();
-        var modalTriggerHandler = new ModalTriggered();
-        var eventQueue = EventQueue.getInstance();
-        eventQueue.addHandler(keyHandler);
-        eventQueue.addHandler(clickHandler);
-        eventQueue.addHandler(generator);
-        eventQueue.addHandler(modalOptionHandler);
-        eventQueue.addHandler(modalTriggerHandler);
-        eventQueue.startHandlers();*/
-    }
     public void showStore() {
         StoreController storeController = new StoreController(accountManager.getCurrentUser());
         storeController.show();
